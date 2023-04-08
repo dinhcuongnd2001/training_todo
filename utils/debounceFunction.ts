@@ -2,13 +2,18 @@ import React from 'react';
 import _ from 'lodash';
 
 interface paramsDebounce {
-  fn: React.Dispatch<React.SetStateAction<any>>;
-  hidden: boolean;
+  location: string;
+  fn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const debounceFunction = ({ fn, hidden }: paramsDebounce) => {
-  _.debounce((hidden) => {
-    console.log(fn);
-    fn(!hidden);
-  }, 300);
+export const debounceFunction = ({ location, fn }: paramsDebounce) => {
+  console.log('called in debound');
+  console.log(fn);
+  _.debounce(() => {
+    if (location == 'out') {
+      fn(true);
+    } else {
+      fn(false);
+    }
+  }, 1000);
 };
