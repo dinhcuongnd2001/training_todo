@@ -1,18 +1,19 @@
 import { useState, useRef } from 'react';
-import { Status, Todo } from '../pages/index';
+import { Status } from '@/constants';
+import { Todo } from '@/interfaces';
 
 export interface ComponentProps {
   todoList: Todo[];
-  setTodolist: React.Dispatch<React.SetStateAction<any>>;
-  setInvisibale: React.Dispatch<React.SetStateAction<any>>;
+  setTodolist: React.Dispatch<React.SetStateAction<Todo[]>>;
+  // setInvisibale: React.Dispatch<React.SetStateAction<Boolean>>;
 }
 
-function ComponentAdd({ todoList, setTodolist, setInvisibale }: ComponentProps) {
+function ComponentAdd({ todoList, setTodolist }: ComponentProps) {
   const [todo, setTodo] = useState<Todo>({ name: '', score: '', status: Status.CLOSE });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
-  const handleSubmit = (data: Todo) => {
+  const handleSubmit = (data: Todo): void => {
     setTodolist([...todoList, data]);
-    setInvisibale(false);
+    setTodo({ name: '', score: '', status: Status.CLOSE });
   };
   return (
     <>
@@ -21,11 +22,11 @@ function ComponentAdd({ todoList, setTodolist, setInvisibale }: ComponentProps) 
           e.preventDefault();
           handleSubmit(todo);
         }}
-        className="w-full bg-white flex flex-3 text-black items-center p-2"
+        className="w-[700px] bg-white flex justify-between text-black items-center p-2 border border-solid border-[#333] mt-2"
       >
         <div className="">
-          <label className="mr-3">name</label>
           <input
+            className="p-2 border rounded"
             value={todo.name}
             name="name"
             type="text"
@@ -37,8 +38,8 @@ function ComponentAdd({ todoList, setTodolist, setInvisibale }: ComponentProps) 
         </div>
 
         <div className="">
-          <label className="mr-3">Score</label>
           <input
+            className="p-2 border rounded"
             name="score"
             type="text"
             placeholder="Score"
@@ -63,7 +64,7 @@ function ComponentAdd({ todoList, setTodolist, setInvisibale }: ComponentProps) 
             ))}
           </select>
         </div>
-        <button className="p-2 bg-red-600 ">Save</button>
+        <button className="p-2 bg-red-600 rounded text-white">Save</button>
       </form>
     </>
   );
