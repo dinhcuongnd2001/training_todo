@@ -55,13 +55,13 @@ export default function Home() {
         </button>
       </div>
 
-      <table className="w-[700px] text-center border border-solid border-[#333]">
+      <table className="w-[900px] text-left border border-solid border-[#333]">
         <thead>
           <tr>
-            <th>#</th>
-            <th className="">Name</th>
-            <th>Score</th>
-            <th>Status</th>
+            <th className="w-[50px]">#</th>
+            <th className="w-[400px]">Name</th>
+            <th className="w-[300px]">Score</th>
+            <th className="w-[150px]">Status</th>
           </tr>
         </thead>
 
@@ -70,8 +70,9 @@ export default function Home() {
             ? filterTodo(status).map((each, index) => {
                 return (
                   <TodoComponent
-                    key={index}
-                    index={index}
+                    key={each.id}
+                    num={index}
+                    index={each.id}
                     name={each.name}
                     score={each.score}
                     status={each.status}
