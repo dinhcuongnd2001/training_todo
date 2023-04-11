@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Inter } from 'next/font/google';
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
-// const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
   const [todoList, setTodoList] = useState<Todo[]>([]);
@@ -19,49 +17,31 @@ export default function Home() {
     setStatus(status);
   };
 
+  const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
+  const listStatus = ['ALL', ...getStatus];
+
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
       <div className="mb-4">
-        <button
-          onClick={() => handleChangeStatus('ALL')}
-          className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
-          style={status == 'ALL' ? { background: 'red' } : { background: '#333' }}
-        >
-          ALL
-        </button>
-
-        <button
-          style={status == 'CLOSE' ? { background: 'red' } : { background: '#333' }}
-          onClick={() => handleChangeStatus(Status.CLOSE)}
-          className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
-        >
-          ClOSE
-        </button>
-
-        <button
-          style={status == 'TODO' ? { background: 'red' } : { background: '#333' }}
-          onClick={() => handleChangeStatus(Status.TODO)}
-          className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
-        >
-          TODO
-        </button>
-
-        <button
-          style={status == 'BACKLOG' ? { background: 'red' } : { background: '#333' }}
-          onClick={() => handleChangeStatus(Status.BACKLOG)}
-          className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
-        >
-          BACKLOG
-        </button>
+        {listStatus.map((x, index) => (
+          <button
+            key={index}
+            onClick={() => handleChangeStatus(x)}
+            className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
+            style={status == x ? { background: 'red' } : { background: '#333' }}
+          >
+            {x}
+          </button>
+        ))}
       </div>
 
-      <table className="w-[700px] text-center border border-solid border-[#333]">
+      <table className="w-[900px] text-left border border-solid border-[#333]">
         <thead>
           <tr>
-            <th>#</th>
-            <th className="">Name</th>
-            <th>Score</th>
-            <th>Status</th>
+            <th className="w-[50px]">#</th>
+            <th className="w-[400px]">Name</th>
+            <th className="w-[300px]">Score</th>
+            <th className="w-[150px]">Status</th>
           </tr>
         </thead>
 
@@ -70,8 +50,9 @@ export default function Home() {
             ? filterTodo(status).map((each, index) => {
                 return (
                   <TodoComponent
-                    key={index}
-                    index={index}
+                    key={each.id}
+                    num={index}
+                    index={each.id}
                     name={each.name}
                     score={each.score}
                     status={each.status}

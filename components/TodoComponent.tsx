@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { debounceFunction } from '../utils/debounceFunction';
-import { debounce } from 'lodash';
 import CreateIcon from '@mui/icons-material/Create';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
 
 export interface TodoProps {
-  index: number;
+  num: number;
+  index: string;
   name: string;
   score: string;
   status: string;
@@ -15,53 +14,72 @@ export interface TodoProps {
   setTodoList: React.Dispatch<React.SetStateAction<Todo[]>>;
 }
 
-function TodoComponent({ index, name, score, status, todoList, setTodoList }: TodoProps) {
-  const [hidden, setHidden] = useState(true);
-  const [showUpdate, setShowUpdate] = useState(false);
-  const [textUpdate, setTextUpdate] = useState(name);
-  const [open, setOpen] = useState(false);
+function TodoComponent({ num, index, name, score, status, todoList, setTodoList }: TodoProps) {
+  const [showUpdate, setShowUpdate] = useState<boolean>(false);
+  const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
+  const [textUpdate, setTextUpdate] = useState<string>(name);
+  const [textUpdateScore, setTextUpdateScore] = useState<string>(score);
+  const [open, setOpen] = useState<boolean>(false);
   const inputUpdateRef = useRef<HTMLInputElement>(null);
+  const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
 
-  console.log('re-render');
-  const handleOpen = () => setOpen(true);
+  const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
+  const handleOpen = (): void => setOpen(true);
 
-  const debounceFn = debounce((location) => {
-    if (location == 'out') {
-      setHidden(true);
-    } else setHidden(false);
-  }, 200);
-
-  const handleClickIconUpdate = () => {
+  const handleClickIconUpdate = (): void => {
     setShowUpdate(true);
-    inputUpdateRef.current?.focus();
   };
 
-  const handleClickIconRemove = () => {
-    const newTodoList = todoList.filter((each, ind) => ind != index);
+  const handleClickIconRemove = (): void => {
+    const newTodoList = todoList.filter((each) => each.id != index);
     setTodoList([...newTodoList]);
   };
 
-  const handleCheckUpdate = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleCheckUpdate = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key == 'Enter') {
-      const newTodoList = todoList;
-      newTodoList[index].name = textUpdate;
+      const newTodoList = todoList.map((x) => {
+        if (x.id != index) return x;
+        else return { ...x, name: textUpdate };
+      });
       setTodoList([...newTodoList]);
       setShowUpdate(false);
     }
   };
 
-  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckUpdateScore = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key == 'Enter') {
+      const newTodoList = todoList.map((x) => {
+        if (x.id != index) return x;
+        else return { ...x, score: textUpdateScore };
+      });
+      setTodoList([...newTodoList]);
+      setShowUpdateScore(false);
+    }
+  };
+
+  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setShowUpdate(false);
     setTextUpdate(name);
   };
 
-  const handleChangeStatus = (status: Status) => {
-    const newTodoList = todoList;
-    newTodoList[index].status = status;
+  const handleOnBlurScore = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setShowUpdateScore(false);
+    setTextUpdateScore(score);
+  };
+
+  const handleChangeStatus = (status: Status): void => {
+    const newTodoList = todoList.map((x) => {
+      if (x.id != index) return x;
+      else return { ...x, status: status };
+    });
     setTodoList([...newTodoList]);
     setOpen(false);
+  };
+
+  const handleClickIconUpdateScore = (): void => {
+    setShowUpdateScore(true);
   };
 
   useEffect(() => {
@@ -82,16 +100,17 @@ function TodoComponent({ index, name, score, status, todoList, setTodoList }: To
     };
   }, [tdRef, divRef]);
 
+  useEffect(() => {
+    inputUpdateScoreRef.current?.focus();
+  }, [showUpdateScore]);
+
   return (
     <>
-      <tr className="relative">
-        <td>{index}</td>
+      <tr className="relative h-[20px]">
+        <td>{num}</td>
         {showUpdate ? (
-          <td className="w-[300px] mb-1 p-2 flex justify-start">
-            <div
-              onClick={() => handleOpen()}
-              className="w-4 h-4 inline-block mr-10 cursor-pointer"
-            ></div>
+          <td className="w-[200px] mb-1 p-2 flex justify-start">
+            <div className="w-4 h-4 bg-red inline-block mr-10"></div>
             <input
               ref={inputUpdateRef}
               value={textUpdate}
@@ -104,61 +123,72 @@ function TodoComponent({ index, name, score, status, todoList, setTodoList }: To
             />
           </td>
         ) : (
-          <td
-            onMouseMove={() => {
-              debounceFn('');
-            }}
-            onMouseOut={() => {
-              debounceFn('out');
-            }}
-            className="w-[300px] mb-1 p-2 flex justify-start items-center relative"
-          >
+          <td className="group mb-1 p-2 flex justify-start items-center h-[50px]">
             <div
               ref={divRef}
               onClick={() => handleOpen()}
               className="w-4 h-4 bg-red-500 inline-block mr-10 cursor-pointer"
             ></div>
-
             <span className="cursor-pointer hover:opacity-80">{name}</span>
-            {hidden ? null : (
-              <span className="ml-5">
-                <span onClick={handleClickIconUpdate}>
-                  <CreateIcon className="w-2 h-2 cursor-pointer hover:opacity-70 inline-block" />
-                </span>
-                <span onClick={handleClickIconRemove}>
-                  <ClearIcon className="w-2 h-2 cursor-pointer hover:opacity-70 inline-block" />
-                </span>
+            <span className="ml-5 hidden group-hover:inline-block">
+              <span onClick={handleClickIconUpdate}>
+                <CreateIcon className="w-2 h-2 cursor-pointer hover:opacity-70 inline-block" />
               </span>
-            )}
+              <span onClick={handleClickIconRemove}>
+                <ClearIcon className="w-2 h-2 cursor-pointer hover:opacity-70 inline-block" />
+              </span>
+            </span>
           </td>
         )}
-        <td>{score}</td>
-        <td className="min-w-[100px]">{status}</td>
+
+        {/* score */}
+        {showUpdateScore ? (
+          <td className="">
+            <input
+              className=""
+              ref={inputUpdateScoreRef}
+              value={textUpdateScore}
+              onChange={(e) => {
+                setTextUpdateScore(e.target.value);
+              }}
+              type="text"
+              onKeyDown={(e) => handleCheckUpdateScore(e)}
+              onBlur={(e) => handleOnBlurScore(e)}
+            />
+          </td>
+        ) : (
+          <td className="group h-[50px]">
+            <div className="flex items-center">
+              <span>{score}</span>
+              <span
+                className="ml-2 hidden group-hover:inline-block"
+                onClick={handleClickIconUpdateScore}
+              >
+                <CreateIcon className="cursor-pointer hover:opacity-70 inline-block" />
+              </span>
+            </div>
+          </td>
+        )}
+
+        {/* status */}
+
+        <td className="">
+          <span>{status}</span>
+        </td>
       </tr>
+
       <tr className="relative">
         {open ? (
-          <td
-            ref={tdRef}
-            className="w-[200px] h-[100px] bg-[#333]/90 absolute top-[-15px] z-10 text-white"
-          >
-            <div
-              onClick={() => handleChangeStatus(Status.CLOSE)}
-              className="cursor-pointer mb-2 border-b-2 border-solid hover:opacity-80"
-            >
-              {Status.CLOSE}
-            </div>
-            <div
-              onClick={() => handleChangeStatus(Status.TODO)}
-              className="cursor-pointer mb-2 border-b-2 border-solid hover:opacity-80"
-            >
-              {Status.TODO}
-            </div>
-            <div
-              onClick={() => handleChangeStatus(Status.BACKLOG)}
-              className="cursor-pointer mb-2 border-b-2 border-solid hover:opacity-80"
-            >
-              {Status.BACKLOG}
-            </div>
+          <td ref={tdRef} className="w-[200px] bg-[#333]/90 absolute top-[-15px]  z-10 text-white">
+            {getStatus.map((x, index) => (
+              <div
+                key={index}
+                onClick={() => handleChangeStatus(x as Status)}
+                className="cursor-pointer p-1 pb-2 border-b-2 border-solid hover:opacity-80"
+              >
+                {x}
+              </div>
+            ))}
           </td>
         ) : null}
       </tr>
