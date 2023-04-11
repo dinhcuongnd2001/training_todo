@@ -15,28 +15,29 @@ export interface TodoProps {
 }
 
 function TodoComponent({ num, index, name, score, status, todoList, setTodoList }: TodoProps) {
-  const [showUpdate, setShowUpdate] = useState(false);
-  const [showUpdateScore, setShowUpdateScore] = useState(false);
-  const [textUpdate, setTextUpdate] = useState(name);
-  const [textUpdateScore, setTextUpdateScore] = useState(score);
-  const [open, setOpen] = useState(false);
+  const [showUpdate, setShowUpdate] = useState<boolean>(false);
+  const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
+  const [textUpdate, setTextUpdate] = useState<string>(name);
+  const [textUpdateScore, setTextUpdateScore] = useState<string>(score);
+  const [open, setOpen] = useState<boolean>(false);
   const inputUpdateRef = useRef<HTMLInputElement>(null);
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
 
-  const handleOpen = () => setOpen(true);
+  const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
+  const handleOpen = (): void => setOpen(true);
 
-  const handleClickIconUpdate = () => {
+  const handleClickIconUpdate = (): void => {
     setShowUpdate(true);
   };
 
-  const handleClickIconRemove = () => {
+  const handleClickIconRemove = (): void => {
     const newTodoList = todoList.filter((each) => each.id != index);
     setTodoList([...newTodoList]);
   };
 
-  const handleCheckUpdate = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleCheckUpdate = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key == 'Enter') {
       const newTodoList = todoList.map((x) => {
         if (x.id != index) return x;
@@ -47,7 +48,7 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
     }
   };
 
-  const handleCheckUpdateScore = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleCheckUpdateScore = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key == 'Enter') {
       const newTodoList = todoList.map((x) => {
         if (x.id != index) return x;
@@ -58,19 +59,17 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
     }
   };
 
-  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setShowUpdate(false);
     setTextUpdate(name);
   };
 
-  const handleOnBlurScore = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOnBlurScore = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setShowUpdateScore(false);
     setTextUpdateScore(score);
   };
 
-  const handleChangeStatus = (status: Status) => {
-    // const newTodoList = todoList;
-    // newTodoList[index].status = status;
+  const handleChangeStatus = (status: Status): void => {
     const newTodoList = todoList.map((x) => {
       if (x.id != index) return x;
       else return { ...x, status: status };
@@ -79,7 +78,7 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
     setOpen(false);
   };
 
-  const handleClickIconUpdateScore = () => {
+  const handleClickIconUpdateScore = (): void => {
     setShowUpdateScore(true);
   };
 
@@ -180,30 +179,16 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
 
       <tr className="relative">
         {open ? (
-          <td
-            ref={tdRef}
-            className="w-[200px] h-[100px] bg-[#333]/90 absolute top-[-15px] z-10 text-white"
-          >
-            <div
-              onClick={() => handleChangeStatus(Status.CLOSE)}
-              className="cursor-pointer mb-2 border-b-2 border-solid hover:opacity-80"
-            >
-              {Status.CLOSE}
-            </div>
-
-            <div
-              onClick={() => handleChangeStatus(Status.TODO)}
-              className="cursor-pointer mb-2 border-b-2 border-solid hover:opacity-80"
-            >
-              {Status.TODO}
-            </div>
-
-            <div
-              onClick={() => handleChangeStatus(Status.BACKLOG)}
-              className="cursor-pointer mb-2 border-b-2 border-solid hover:opacity-80"
-            >
-              {Status.BACKLOG}
-            </div>
+          <td ref={tdRef} className="w-[200px] bg-[#333]/90 absolute top-[-15px]  z-10 text-white">
+            {getStatus.map((x, index) => (
+              <div
+                key={index}
+                onClick={() => handleChangeStatus(x as Status)}
+                className="cursor-pointer p-1 pb-2 border-b-2 border-solid hover:opacity-80"
+              >
+                {x}
+              </div>
+            ))}
           </td>
         ) : null}
       </tr>

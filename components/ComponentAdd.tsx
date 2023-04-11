@@ -54,13 +54,16 @@ function ComponentAdd({ todoList, setTodolist }: ComponentProps) {
           <label className="mr-3">Status</label>
           <select
             name="status"
+            className="cursor-pointer"
             value={todo.status}
             onChange={(e) => {
               setTodo({ ...todo, [e.target.name]: e.target.value });
             }}
           >
             {status.map((x, index) => (
-              <option key={index}>{x}</option>
+              <option className="p-2" key={index}>
+                {x}
+              </option>
             ))}
           </select>
         </div>
