@@ -1,18 +1,16 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Status } from '@/constants';
 import { Todo } from '@/interfaces';
 import { uuid } from 'uuidv4';
+import { useAppDispatch } from '@/hooks/common';
+import { addTodo } from '@/redux/todo.slice';
 
-export interface ComponentProps {
-  todoList: Todo[];
-  setTodolist: React.Dispatch<React.SetStateAction<Todo[]>>;
-}
-
-function ComponentAdd({ todoList, setTodolist }: ComponentProps) {
+function ComponentAdd() {
   const [todo, setTodo] = useState<Todo>({ id: uuid(), name: '', score: '', status: Status.CLOSE });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
-  const handleSubmit = (data: Todo): void => {
-    setTodolist([...todoList, data]);
+  const dispatch = useAppDispatch();
+  const handleSubmit = (): void => {
+    dispatch(addTodo(todo));
     setTodo({ id: uuid(), name: '', score: '', status: Status.CLOSE });
   };
   return (
@@ -20,7 +18,7 @@ function ComponentAdd({ todoList, setTodolist }: ComponentProps) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          handleSubmit(todo);
+          handleSubmit();
         }}
         className="w-[900px] bg-white flex justify-between text-black items-center p-2  pl-[50px] border border-solid border-[#333] mt-2"
       >
