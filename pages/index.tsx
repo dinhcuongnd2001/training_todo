@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
+import { useAppDispatch, useAppSelector } from '@/hooks/common';
+import { fetchTodoList } from '@/redux/todo.slice';
 
 export default function Home() {
-  const [todoList, setTodoList] = useState<Todo[]>([]);
   const [status, setStatus] = useState<string>('ALL');
+  const dispatch = useAppDispatch();
+  const todoList = useAppSelector((state) => state.todolist.list);
 
   const filterTodo = (status: string): Todo[] => {
     if (status === 'ALL') return todoList;
@@ -16,6 +19,14 @@ export default function Home() {
   const handleChangeStatus = (status: string): void => {
     setStatus(status);
   };
+
+  useEffect(() => {
+    const list = localStorage.getItem('todoList');
+    if (list) {
+      const listTodo: Todo[] = JSON.parse(list);
+      dispatch(fetchTodoList(listTodo));
+    }
+  }, []);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
@@ -48,23 +59,12 @@ export default function Home() {
         <tbody>
           {todoList.length > 0
             ? filterTodo(status).map((each, index) => {
-                return (
-                  <TodoComponent
-                    key={each.id}
-                    num={index}
-                    index={each.id}
-                    name={each.name}
-                    score={each.score}
-                    status={each.status}
-                    todoList={todoList}
-                    setTodoList={setTodoList}
-                  />
-                );
+                return <TodoComponent key={each.id} num={index} todo={each} />;
               })
             : null}
         </tbody>
       </table>
-      <ComponentAdd todoList={todoList} setTodolist={setTodoList} />
+      <ComponentAdd />
     </main>
   );
 }

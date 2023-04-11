@@ -3,27 +3,26 @@ import CreateIcon from '@mui/icons-material/Create';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
+import { useAppDispatch } from '@/hooks/common';
+import { changeTodo, removeTodo } from '@/redux/todo.slice';
 
 export interface TodoProps {
   num: number;
-  index: string;
-  name: string;
-  score: string;
-  status: string;
-  todoList: Todo[];
-  setTodoList: React.Dispatch<React.SetStateAction<Todo[]>>;
+  todo: Todo;
 }
 
-function TodoComponent({ num, index, name, score, status, todoList, setTodoList }: TodoProps) {
+function TodoComponent({ num, todo }: TodoProps) {
   const [showUpdate, setShowUpdate] = useState<boolean>(false);
   const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
-  const [textUpdate, setTextUpdate] = useState<string>(name);
-  const [textUpdateScore, setTextUpdateScore] = useState<string>(score);
+  const [textUpdate, setTextUpdate] = useState<string>(todo.name);
+  const [textUpdateScore, setTextUpdateScore] = useState<string>(todo.score);
   const [open, setOpen] = useState<boolean>(false);
   const inputUpdateRef = useRef<HTMLInputElement>(null);
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
+
+  const dispatch = useAppDispatch();
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const handleOpen = (): void => setOpen(true);
@@ -33,49 +32,39 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
   };
 
   const handleClickIconRemove = (): void => {
-    const newTodoList = todoList.filter((each) => each.id != index);
-    setTodoList([...newTodoList]);
+    dispatch(removeTodo(todo.id));
   };
 
-  const handleCheckUpdate = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+  const handleCheckUpdateScoreOrName = (e: React.KeyboardEvent<HTMLInputElement>, field: string): void => {
     if (e.key == 'Enter') {
-      const newTodoList = todoList.map((x) => {
-        if (x.id != index) return x;
-        else return { ...x, name: textUpdate };
-      });
-      setTodoList([...newTodoList]);
-      setShowUpdate(false);
-    }
-  };
-
-  const handleCheckUpdateScore = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key == 'Enter') {
-      const newTodoList = todoList.map((x) => {
-        if (x.id != index) return x;
-        else return { ...x, score: textUpdateScore };
-      });
-      setTodoList([...newTodoList]);
-      setShowUpdateScore(false);
+      const newTodo: Todo = { ...todo };
+      if (field == 'name') {
+        newTodo.name = textUpdate;
+        setShowUpdate(false);
+      }
+      if (field == 'score') {
+        newTodo.score = textUpdateScore;
+        setShowUpdateScore(false);
+      }
+      dispatch(changeTodo(newTodo));
     }
   };
 
   const handleOnBlur = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setShowUpdate(false);
-    setTextUpdate(name);
-  };
-
-  const handleOnBlurScore = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setShowUpdateScore(false);
-    setTextUpdateScore(score);
+    if (e.target.name == 'name') {
+      setShowUpdate(false);
+      setTextUpdate(todo.name);
+    } else if (e.target.name == 'score') {
+      setShowUpdateScore(false);
+      setTextUpdateScore(todo.score);
+    }
   };
 
   const handleChangeStatus = (status: Status): void => {
-    const newTodoList = todoList.map((x) => {
-      if (x.id != index) return x;
-      else return { ...x, status: status };
-    });
-    setTodoList([...newTodoList]);
+    const newTodo: Todo = { ...todo };
+    newTodo.status = status;
     setOpen(false);
+    dispatch(changeTodo(newTodo));
   };
 
   const handleClickIconUpdateScore = (): void => {
@@ -118,7 +107,8 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
                 setTextUpdate(e.target.value);
               }}
               type="text"
-              onKeyDown={(e) => handleCheckUpdate(e)}
+              name="name"
+              onKeyDown={(e) => handleCheckUpdateScoreOrName(e, 'name')}
               onBlur={(e) => handleOnBlur(e)}
             />
           </td>
@@ -129,7 +119,7 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
               onClick={() => handleOpen()}
               className="w-4 h-4 bg-red-500 inline-block mr-10 cursor-pointer"
             ></div>
-            <span className="cursor-pointer hover:opacity-80">{name}</span>
+            <span className="cursor-pointer hover:opacity-80">{todo.name}</span>
             <span className="ml-5 hidden group-hover:inline-block">
               <span onClick={handleClickIconUpdate}>
                 <CreateIcon className="w-2 h-2 cursor-pointer hover:opacity-70 inline-block" />
@@ -152,18 +142,16 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
                 setTextUpdateScore(e.target.value);
               }}
               type="text"
-              onKeyDown={(e) => handleCheckUpdateScore(e)}
-              onBlur={(e) => handleOnBlurScore(e)}
+              name="score"
+              onKeyDown={(e) => handleCheckUpdateScoreOrName(e, 'score')}
+              onBlur={(e) => handleOnBlur(e)}
             />
           </td>
         ) : (
           <td className="group h-[50px]">
             <div className="flex items-center">
-              <span>{score}</span>
-              <span
-                className="ml-2 hidden group-hover:inline-block"
-                onClick={handleClickIconUpdateScore}
-              >
+              <span>{todo.score}</span>
+              <span className="ml-2 hidden group-hover:inline-block" onClick={handleClickIconUpdateScore}>
                 <CreateIcon className="cursor-pointer hover:opacity-70 inline-block" />
               </span>
             </div>
@@ -173,7 +161,7 @@ function TodoComponent({ num, index, name, score, status, todoList, setTodoList 
         {/* status */}
 
         <td className="">
-          <span>{status}</span>
+          <span>{todo.status}</span>
         </td>
       </tr>
 
