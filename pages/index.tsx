@@ -5,19 +5,18 @@ import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
-
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 export default function Home() {
-  const [status, setStatus] = useState<string>('ALL');
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
+  const router = useRouter();
+  let { status } = router.query;
+  status = status ? status : 'ALL';
 
-  const filterTodo = (status: string): Todo[] => {
+  const filterTodo = (status: string | string[]): Todo[] => {
     if (status === 'ALL') return todoList;
     return todoList.filter((x) => x.status === status);
-  };
-
-  const handleChangeStatus = (status: string): void => {
-    setStatus(status);
   };
 
   useEffect(() => {
@@ -28,6 +27,12 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    if (todoList.length) {
+      localStorage.setItem('todoList', JSON.stringify(todoList));
+    }
+  }, [todoList]);
+
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
 
@@ -35,14 +40,14 @@ export default function Home() {
     <main className="w-full h-[100vh] bg-white text-black p-8">
       <div className="mb-4">
         {listStatus.map((x, index) => (
-          <button
+          <Link
             key={index}
-            onClick={() => handleChangeStatus(x)}
             className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
             style={status == x ? { background: 'red' } : { background: '#333' }}
+            href={{ pathname: '', query: { status: x } }}
           >
             {x}
-          </button>
+          </Link>
         ))}
       </div>
 

@@ -5,7 +5,7 @@ import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { useAppDispatch } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
-
+import Link from 'next/link';
 export interface TodoProps {
   num: number;
   todo: Todo;
@@ -21,6 +21,8 @@ function TodoComponent({ num, todo }: TodoProps) {
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
+
+  // const [myObject, setMyObject] = useState<Todo>(todo);
 
   const dispatch = useAppDispatch();
 
@@ -119,7 +121,9 @@ function TodoComponent({ num, todo }: TodoProps) {
               onClick={() => handleOpen()}
               className="w-4 h-4 bg-red-500 inline-block mr-10 cursor-pointer"
             ></div>
-            <span className="cursor-pointer hover:opacity-80">{todo.name}</span>
+            <Link href={{ pathname: '/todo/[id]', query: { id: todo.id } }} className="cursor-pointer hover:opacity-80">
+              {todo.name}
+            </Link>
             <span className="ml-5 hidden group-hover:inline-block">
               <span onClick={handleClickIconUpdate}>
                 <CreateIcon className="w-2 h-2 cursor-pointer hover:opacity-70 inline-block" />

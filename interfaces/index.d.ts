@@ -1,7 +1,8 @@
-import { Status } from '@/constants';
+import { Status } from '@/constants'
 export interface Todo {
-  id: string;
-  name: string;
-  score: string;
-  status: Status | string;
+  id: string
+  name: string
+  score: string
+  desc: string
+  status: Status | string
 }

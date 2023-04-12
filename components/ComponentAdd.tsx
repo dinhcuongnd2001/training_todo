@@ -6,13 +6,14 @@ import { useAppDispatch } from '@/hooks/common';
 import { addTodo } from '@/redux/todo.slice';
 
 function ComponentAdd() {
-  const [todo, setTodo] = useState<Todo>({ id: uuid(), name: '', score: '', status: Status.CLOSE });
+  const [todo, setTodo] = useState<Todo>({ id: uuid(), name: '', score: '', status: Status.CLOSE, desc: '' });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const dispatch = useAppDispatch();
   const handleSubmit = (): void => {
     dispatch(addTodo(todo));
-    setTodo({ id: uuid(), name: '', score: '', status: Status.CLOSE });
+    setTodo({ id: uuid(), name: '', score: '', status: Status.CLOSE, desc: '' });
   };
+
   return (
     <>
       <form
