@@ -5,11 +5,10 @@ import { uuid } from 'uuidv4';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { addTodo } from '@/redux/todo.slice';
 import { AddTodoProps } from '@/interfaces';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-function ComponentAdd({ openModal, setOpenModal }: AddTodoProps) {
+import { useRouter } from 'next/router';
+function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
+  const router = useRouter();
   const [todo, setTodo] = useState<Todo>({ id: uuid(), name: '', score: '', status: Status.CLOSE, desc: '' });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const dispatch = useAppDispatch();
@@ -25,6 +24,8 @@ function ComponentAdd({ openModal, setOpenModal }: AddTodoProps) {
       dispatch(addTodo(todo));
       setTodo({ id: uuid(), name: '', score: '', status: Status.CLOSE, desc: '' });
       setOpenModal(false);
+      setFilter('');
+      router.push('');
     }
   };
   const handleClose = (): void => {

@@ -1,5 +1,5 @@
 import { Status } from '@/constants';
-import { SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 export interface Todo {
   id: string;
   name: string;
@@ -11,4 +11,5 @@ export interface Todo {
 export interface AddTodoProps {
   openModal: boolean;
   setOpenModal: Dispatch<SetStateAction<boolean>>;
+  setFilter: Dispatch<SetStateAction<string>>;
 }

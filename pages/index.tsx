@@ -19,10 +19,12 @@ export default function Home() {
   const filterTodo = (status: string | string[], search: string | string[]): Todo[] => {
     if (status === 'ALL') {
       if (search == '') return todoList;
-      return todoList.filter((x) => x.name.includes(search as string));
+      return todoList.filter((x) => x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase()));
     } else {
       if (search == '') return todoList.filter((x) => x.status === status);
-      return todoList.filter((x) => x.status == status && x.name.includes(search as string));
+      return todoList.filter(
+        (x) => x.status == status && x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase())
+      );
     }
   };
 
@@ -125,7 +127,7 @@ export default function Home() {
       <button onClick={handleOpenModal} className="p-3 bg-red-500 text-white mt-5">
         +
       </button>
-      {openModal ? <ComponentAdd openModal={openModal} setOpenModal={setOpenModal} /> : null}
+      {openModal ? <ComponentAdd openModal={openModal} setOpenModal={setOpenModal} setFilter={setFilter} /> : null}
     </main>
   );
 }
