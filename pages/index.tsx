@@ -1,24 +1,53 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, ChangeEvent, useRef } from 'react';
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { debounce } from 'lodash';
 export default function Home() {
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
   const router = useRouter();
-  let { status } = router.query;
+  let { status, search } = router.query;
   status = status ? status : 'ALL';
-
-  const filterTodo = (status: string | string[]): Todo[] => {
-    if (status === 'ALL') return todoList;
-    return todoList.filter((x) => x.status === status);
+  search = search ? search : '';
+  const [filter, setFilter] = useState<string>('');
+  const filterTodo = (status: string | string[], search: string | string[]): Todo[] => {
+    if (status === 'ALL') {
+      if (search == '') return todoList;
+      return todoList.filter((x) => x.name.includes(search as string));
+    } else {
+      if (search == '') return todoList.filter((x) => x.status === status);
+      return todoList.filter((x) => x.status == status && x.name.includes(search as string));
+    }
   };
 
+  const handleChangeStatus = (status: string) => {
+    router.query.status = status;
+    router.push({
+      query: {
+        ...router.query,
+        status,
+      },
+    });
+  };
+  const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
+    const stringSearch = e.target.value.trim();
+
+    const debounceFn = debounce(() => {
+      router.push({
+        query: {
+          ...router.query,
+          search: stringSearch,
+        },
+      });
+    }, 300);
+    setFilter(stringSearch);
+    debounceFn();
+  };
   useEffect(() => {
     const list = localStorage.getItem('todoList');
     if (list) {
@@ -27,6 +56,7 @@ export default function Home() {
     }
   }, []);
 
+  // lan cuoi chua xoa dc
   useEffect(() => {
     if (todoList.length) {
       localStorage.setItem('todoList', JSON.stringify(todoList));
@@ -38,17 +68,29 @@ export default function Home() {
 
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
-      <div className="mb-4">
-        {listStatus.map((x, index) => (
-          <Link
-            key={index}
-            className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
-            style={status == x ? { background: 'red' } : { background: '#333' }}
-            href={{ pathname: '', query: { status: x } }}
-          >
-            {x}
-          </Link>
-        ))}
+      <div className="mb-4 flex items-center">
+        <div>
+          {listStatus.map((x, index) => (
+            <button
+              onClick={() => handleChangeStatus(x)}
+              key={index}
+              className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
+              style={status == x ? { background: 'red' } : { background: '#333' }}
+              // href={{ pathname: '', query: { status: x } }}
+            >
+              {x}
+            </button>
+          ))}
+        </div>
+        <div>
+          <input
+            placeholder="Input to search"
+            className="p-1 ml-4 border border-[#333] "
+            type="text"
+            value={filter}
+            onChange={handleChangeFilter}
+          />
+        </div>
       </div>
 
       <table className="w-[900px] text-left border border-solid border-[#333]">
@@ -63,7 +105,7 @@ export default function Home() {
 
         <tbody>
           {todoList.length > 0
-            ? filterTodo(status).map((each, index) => {
+            ? filterTodo(status, search).map((each, index) => {
                 return <TodoComponent key={each.id} num={index} todo={each} />;
               })
             : null}
