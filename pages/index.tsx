@@ -15,6 +15,7 @@ export default function Home() {
   status = status ? status : 'ALL';
   search = search ? search : '';
   const [filter, setFilter] = useState<string>('');
+  const [openModal, setOpenModal] = useState<boolean>(false);
   const filterTodo = (status: string | string[], search: string | string[]): Todo[] => {
     if (status === 'ALL') {
       if (search == '') return todoList;
@@ -34,20 +35,30 @@ export default function Home() {
       },
     });
   };
+
   const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
     const stringSearch = e.target.value.trim();
+    const { search, ...rest } = router.query;
+    const queryStore = stringSearch
+      ? {
+          ...rest,
+          search: stringSearch,
+        }
+      : { ...rest };
 
     const debounceFn = debounce(() => {
       router.push({
-        query: {
-          ...router.query,
-          search: stringSearch,
-        },
+        query: queryStore,
       });
     }, 300);
     setFilter(stringSearch);
     debounceFn();
   };
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
   useEffect(() => {
     const list = localStorage.getItem('todoList');
     if (list) {
@@ -76,7 +87,6 @@ export default function Home() {
               key={index}
               className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
               style={status == x ? { background: 'red' } : { background: '#333' }}
-              // href={{ pathname: '', query: { status: x } }}
             >
               {x}
             </button>
@@ -111,7 +121,11 @@ export default function Home() {
             : null}
         </tbody>
       </table>
-      <ComponentAdd />
+
+      <button onClick={handleOpenModal} className="p-3 bg-red-500 text-white mt-5">
+        +
+      </button>
+      {openModal ? <ComponentAdd openModal={openModal} setOpenModal={setOpenModal} /> : null}
     </main>
   );
 }
