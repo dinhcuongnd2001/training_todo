@@ -21,9 +21,6 @@ function TodoComponent({ num, todo }: TodoProps) {
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
-
-  // const [myObject, setMyObject] = useState<Todo>(todo);
-
   const dispatch = useAppDispatch();
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
@@ -121,7 +118,10 @@ function TodoComponent({ num, todo }: TodoProps) {
               onClick={() => handleOpen()}
               className="w-4 h-4 bg-red-500 inline-block mr-10 cursor-pointer"
             ></div>
-            <Link href={{ pathname: '/todo/[id]', query: { id: todo.id } }} className="cursor-pointer hover:opacity-80">
+            <Link
+              href={{ pathname: '/todo/[slug]', query: { slug: todo.name } }}
+              className="cursor-pointer hover:opacity-80"
+            >
               {todo.name}
             </Link>
             <span className="ml-5 hidden group-hover:inline-block">
