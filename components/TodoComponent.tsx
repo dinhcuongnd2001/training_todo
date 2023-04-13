@@ -80,7 +80,7 @@ function TodoComponent({ num, todo }: TodoProps) {
   useEffect(() => {
     const handleClickOut = (event: MouseEvent) => {
       if (divRef.current && divRef.current?.contains(event.target as Node)) {
-        setOpen(!open);
+        setOpen((preOpen) => !preOpen);
       } else if (tdRef.current && !tdRef.current.contains(event.target as Node)) {
         setOpen(false);
       }

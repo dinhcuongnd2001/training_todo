@@ -2,7 +2,7 @@ import { Todo } from '@/interfaces';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-export default function () {
+export default function DetailTodo() {
   const [currentTodo, setCurrentTodo] = useState<Todo>();
   const router = useRouter();
   const { id } = router.query;
@@ -13,7 +13,7 @@ export default function () {
       const findTodo = listTodo.find((x) => x.id == id);
       setCurrentTodo(findTodo);
     }
-  }, []);
+  }, [id]);
   const handleClick = () => {
     router.back();
   };
