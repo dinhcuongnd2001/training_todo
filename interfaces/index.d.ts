@@ -13,3 +13,9 @@ export interface AddTodoProps {
   setOpenModal: Dispatch<SetStateAction<boolean>>;
   setFilter: Dispatch<SetStateAction<string>>;
 }
+
+export interface PanigationProps {
+  totalPages: number;
+  currentPage: number;
+  // setCurrentPage: Dispatch<SetStateAction<number>>;
+}
