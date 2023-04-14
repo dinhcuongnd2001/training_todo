@@ -1,15 +1,24 @@
 import { useState } from 'react';
 import { Status } from '@/constants';
 import { Todo } from '@/interfaces';
-import { uuid } from 'uuidv4';
+import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { addTodo } from '@/redux/todo.slice';
 import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
+import axios from 'axios';
+
 function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
   const router = useRouter();
-  const [todo, setTodo] = useState<Todo>({ id: uuid(), name: '', score: '', status: Status.CLOSE, desc: '' });
+  const [todo, setTodo] = useState<Todo>({
+    id: uuidv4(),
+    name: '',
+    score: '',
+    status: Status.CLOSE,
+    desc: '',
+    dueDate: '',
+  });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const dispatch = useAppDispatch();
 
@@ -22,7 +31,13 @@ function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
       alert('Ten Bi Trung');
     } else {
       dispatch(addTodo(todo));
-      setTodo({ id: uuid(), name: '', score: '', status: Status.CLOSE, desc: '' });
+      axios
+        .post('/api/todo', todo)
+        .then((res) => {
+          console.log('res ::', res);
+        })
+        .catch((e) => console.log(e));
+      setTodo({ id: uuidv4(), name: '', score: '', status: Status.CLOSE, desc: '', dueDate: '' });
       setOpenModal(false);
       setFilter('');
       router.push('');
@@ -67,6 +82,19 @@ function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
               type="text"
               placeholder="Score"
               value={todo.score}
+              onChange={(e) => {
+                setTodo({ ...todo, [e.target.name]: e.target.value });
+              }}
+            />
+          </div>
+
+          <div className="mb-5">
+            <input
+              className="p-2 border rounded"
+              name="dueDate"
+              type="date"
+              placeholder=""
+              value={todo.dueDate}
               onChange={(e) => {
                 setTodo({ ...todo, [e.target.name]: e.target.value });
               }}
