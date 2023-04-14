@@ -6,6 +6,7 @@ export interface Todo {
   score: string;
   desc: string;
   status: Status | string;
+  dueDate: string;
 }
 
 export interface AddTodoProps {
@@ -17,5 +18,11 @@ export interface AddTodoProps {
 export interface PanigationProps {
   totalPages: number;
   currentPage: number;
-  // setCurrentPage: Dispatch<SetStateAction<number>>;
+  numPageShow: number;
+  nearPage: number;
+}
+
+export interface ParamsForGetApi {
+  status?: string;
+  search?: string;
 }

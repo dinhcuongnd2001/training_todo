@@ -6,6 +6,7 @@ import { Status } from '@/constants';
 import { useAppDispatch } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import Link from 'next/link';
+import axios from 'axios';
 export interface TodoProps {
   num: number;
   todo: Todo;
@@ -32,6 +33,10 @@ function TodoComponent({ num, todo }: TodoProps) {
 
   const handleClickIconRemove = (): void => {
     dispatch(removeTodo(todo.id));
+    axios
+      .delete(`/api/todo/?id=${todo.id}`)
+      .then((res) => console.log('res ::', res))
+      .catch((e) => console.log('err :', e));
   };
 
   const handleCheckUpdateScoreOrName = (e: React.KeyboardEvent<HTMLInputElement>, field: string): void => {
@@ -46,6 +51,10 @@ function TodoComponent({ num, todo }: TodoProps) {
         setShowUpdateScore(false);
       }
       dispatch(changeTodo(newTodo));
+      axios
+        .put('/api/todo', newTodo)
+        .then((res) => console.log('res :: ', res.data))
+        .catch((e) => console.log('e :: ', e));
     }
   };
 
@@ -64,6 +73,10 @@ function TodoComponent({ num, todo }: TodoProps) {
     newTodo.status = status;
     setOpen(false);
     dispatch(changeTodo(newTodo));
+    axios
+      .put('/api/todo', newTodo)
+      .then((res) => console.log('res :: ', res))
+      .catch((e) => console.log('e:: ', e));
   };
 
   const handleClickIconUpdateScore = (): void => {
@@ -166,6 +179,9 @@ function TodoComponent({ num, todo }: TodoProps) {
 
         <td className="">
           <span>{todo.status}</span>
+        </td>
+        <td>
+          <span>{todo.dueDate}</span>
         </td>
       </tr>
 

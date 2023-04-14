@@ -1,21 +1,25 @@
 import { useState, useEffect, useLayoutEffect, ChangeEvent, useRef } from 'react';
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
-import Panigation from '@/components/panigation';
-import { Todo } from '@/interfaces';
+import Panigation from '@/components/pagination';
+import { ParamsForGetApi, Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
 import { useRouter } from 'next/router';
 import { debounce } from 'lodash';
+import ApiHandle from '../service';
+
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
   const [openModal, setOpenModal] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
   const router = useRouter();
-  const checkRef = useRef<boolean>(false); // check already get data from localstorage
+  // const checkRef = useRef<boolean>(false); // check already get data from localstorage
   const todosPerPage = 2;
+  const numPageShow = 5;
+  const nearPage = 2;
   let totalPages = Math.ceil(todoList.length / 5);
   let { status, search, page } = router.query;
   status = status ? status : 'ALL';
@@ -47,6 +51,7 @@ export default function Home() {
         status,
       },
     });
+    ApiHandle.get('/api/todo', { ...rest, status: status });
   };
 
   const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
@@ -73,19 +78,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const list = localStorage.getItem('todoList');
-    checkRef.current = true;
-    if (list) {
-      const listTodo: Todo[] = JSON.parse(list);
-      dispatch(fetchTodoList(listTodo));
-    }
+    ApiHandle.get('/api/todo/')
+      .then((res) => {
+        dispatch(fetchTodoList(res.data));
+      })
+      .catch((e) => console.log('err ::', e));
   }, []);
-
-  useEffect(() => {
-    if (todoList.length || checkRef.current) {
-      localStorage.setItem('todoList', JSON.stringify(todoList));
-    }
-  }, [todoList]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
@@ -123,13 +121,14 @@ export default function Home() {
       </div>
 
       <>
-        <table className="w-[900px] min-h-[145px] text-left border border-solid border-[#333]">
+        <table className="w-[1100px] min-h-[145px] text-left border border-solid border-[#333]">
           <thead>
             <tr>
               <th className="w-[50px]">#</th>
               <th className="w-[400px]">Name</th>
               <th className="w-[300px]">Score</th>
               <th className="w-[150px]">Status</th>
+              <th className="w-[200px]">Due Date</th>
             </tr>
           </thead>
           {todoShow.length ? (
@@ -156,7 +155,7 @@ export default function Home() {
           <p>Total Pages : {totalPages}</p>
           <p>Todos Per Page: {todosPerPage}</p>
         </div>
-        <Panigation totalPages={totalPages} currentPage={+page} />
+        <Panigation totalPages={totalPages} currentPage={+page} numPageShow={numPageShow} nearPage={nearPage} />
       </>
 
       {openModal ? <ComponentAdd openModal={openModal} setOpenModal={setOpenModal} setFilter={setFilter} /> : null}
