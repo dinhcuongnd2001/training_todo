@@ -14,6 +14,7 @@ export default function Home() {
   const [filter, setFilter] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>();
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [checkUpdate, setCheckUpdate] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
   const router = useRouter();
@@ -59,15 +60,17 @@ export default function Home() {
   };
 
   useEffect(() => {
-    console.log('called in useEffect');
     if (!router.isReady) return;
+    if (openModal) return;
+    console.log('called Api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
+        console.log('res ::', res);
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
       })
       .catch((e) => console.log('err ::', e));
-  }, [router.isReady, status, search, page]);
+  }, [router.isReady, status, search, page, checkUpdate]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
@@ -117,7 +120,7 @@ export default function Home() {
             <tbody>
               {todoList.length > 0
                 ? todoList.map((each, index) => {
-                    return <TodoComponent key={each.id} num={index} todo={each} />;
+                    return <TodoComponent key={each.id} num={index} todo={each} checkUpdate={setCheckUpdate} />;
                   })
                 : null}
             </tbody>
@@ -140,7 +143,14 @@ export default function Home() {
         <Panigation totalPages={Number(totalPages)} currentPage={+page} numPageShow={numPageShow} nearPage={nearPage} />
       </>
 
-      {openModal ? <ComponentAdd openModal={openModal} setOpenModal={setOpenModal} setFilter={setFilter} /> : null}
+      {openModal ? (
+        <ComponentAdd
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+          setFilter={setFilter}
+          setCheckAdd={setCheckUpdate}
+        />
+      ) : null}
     </main>
   );
 }

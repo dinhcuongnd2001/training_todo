@@ -20,7 +20,6 @@ export const handleChangeUpdate = (listTodo: Todo[], param: Todo) => {
 
 export const handleChangeRemove = (listTodo: Todo[], id: any) => {
   listTodo = listTodo.filter((x) => x.id != id);
-  return listTodo;
 };
 
 export const handleGetTodo = (

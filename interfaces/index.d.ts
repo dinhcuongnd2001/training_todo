@@ -14,6 +14,7 @@ export interface AddTodoProps {
   openModal: boolean;
   setOpenModal: Dispatch<SetStateAction<boolean>>;
   setFilter: Dispatch<SetStateAction<string>>;
+  setCheckAdd: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface PanigationProps {

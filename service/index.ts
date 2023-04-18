@@ -23,7 +23,7 @@ class ApiHandle {
   update(url: string, data: any) {
     return axios.put(url, data);
   }
-  delete(url: string, config: any) {
+  delete(url: string, config?: any) {
     return axios.delete(url, { ...config });
   }
 }

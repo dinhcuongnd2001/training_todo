@@ -1,36 +1,8 @@
+import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ApiResponse, Todo } from '@/interfaces';
-import { Status } from '@/constants';
-import { createDueDate } from '@/util';
 import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/util';
-import nc from 'next-connect';
-
-let listTodo: Todo[] = [
-  {
-    id: '1',
-    name: 'Học React',
-    score: '12',
-    desc: 'Học React ',
-    status: Status.CLOSE,
-    dueDate: createDueDate(4),
-  },
-  {
-    id: '2',
-    name: 'Học NextJs',
-    score: '12',
-    desc: 'Học NextJs ',
-    status: Status.CLOSE,
-    dueDate: createDueDate(7),
-  },
-  {
-    id: '3',
-    name: 'Học Redux',
-    score: '13',
-    desc: 'Học NextJs ',
-    status: Status.CLOSE,
-    dueDate: createDueDate(9),
-  },
-];
+import listTodo from '@/db';
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err, req, res, next) => {
@@ -42,10 +14,16 @@ const handler = nc<NextApiRequest, NextApiResponse>({
   },
 });
 
-handler.get('/api/todo', (req, res: NextApiResponse<ApiResponse>, next) => {
-  const data = handleGetTodo(listTodo, req.query);
-  res.status(200).json(data);
-});
+handler.get(
+  (req, res, next) => {
+    console.log('call middleware');
+    next();
+  },
+  (req, res: NextApiResponse<ApiResponse>, next) => {
+    const data = handleGetTodo(listTodo, req.query);
+    res.status(200).json(data);
+  }
+);
 
 handler.post('/api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
   handelAddTodo(listTodo, req.body);
@@ -57,8 +35,8 @@ handler.put('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
   res.status(200).json(listTodo);
 });
 
-handler.delete('api/todo/:id', (req, res: NextApiResponse<Todo[]>, next) => {
-  listTodo = handleChangeRemove(listTodo, req.query.id);
+handler.delete('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+  handleChangeRemove(listTodo, req.query.id);
   res.status(200).json(listTodo);
 });
 
