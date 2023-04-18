@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Todo } from '@/interfaces';
+import { ApiResponse, Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { createDueDate } from '@/util';
 import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/util';
-// data
+import nc from 'next-connect';
+
 let listTodo: Todo[] = [
   {
     id: '1',
@@ -31,23 +32,34 @@ let listTodo: Todo[] = [
   },
 ];
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<Todo[] | {}>) {
-  if (req.method == 'GET') {
-    console.log('request :: ', req.query);
-    const newlistTodo = handleGetTodo(listTodo, req.query);
-    console.log('new ::', newlistTodo.length);
-    res.status(200).json(newlistTodo);
-  }
-  if (req.method == 'POST') {
-    handelAddTodo(listTodo, req.body);
-    res.status(201).json(listTodo);
-  }
-  if (req.method == 'PUT') {
-    handleChangeUpdate(listTodo, req.body);
-    res.status(200).json(listTodo);
-  }
-  if (req.method == 'DELETE') {
-    listTodo = handleChangeRemove(listTodo, req.query.id);
-    res.status(200).json(listTodo);
-  }
-}
+const handler = nc<NextApiRequest, NextApiResponse>({
+  onError: (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).end('Something broke!');
+  },
+  onNoMatch: (req, res) => {
+    res.status(404).end('Page is not found');
+  },
+});
+
+handler.get('/api/todo', (req, res: NextApiResponse<ApiResponse>, next) => {
+  const data = handleGetTodo(listTodo, req.query);
+  res.status(200).json(data);
+});
+
+handler.post('/api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+  handelAddTodo(listTodo, req.body);
+  res.status(201).json(listTodo);
+});
+
+handler.put('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+  handleChangeUpdate(listTodo, req.body);
+  res.status(200).json(listTodo);
+});
+
+handler.delete('api/todo/:id', (req, res: NextApiResponse<Todo[]>, next) => {
+  listTodo = handleChangeRemove(listTodo, req.query.id);
+  res.status(200).json(listTodo);
+});
+
+export default handler;

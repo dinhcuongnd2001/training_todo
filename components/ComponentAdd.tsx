@@ -30,12 +30,9 @@ function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
     if (currName) {
       alert('Ten Bi Trung');
     } else {
-      dispatch(addTodo(todo));
       axios
         .post('/api/todo', todo)
-        .then((res) => {
-          console.log('res ::', res);
-        })
+        .then((res) => {})
         .catch((e) => console.log(e));
       setTodo({ id: uuidv4(), name: '', score: '', status: Status.CLOSE, desc: '', dueDate: '' });
       setOpenModal(false);

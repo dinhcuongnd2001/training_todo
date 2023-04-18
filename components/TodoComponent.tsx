@@ -32,7 +32,7 @@ function TodoComponent({ num, todo }: TodoProps) {
   };
 
   const handleClickIconRemove = (): void => {
-    dispatch(removeTodo(todo.id));
+    // dispatch(removeTodo(todo.id));
     axios
       .delete(`/api/todo/?id=${todo.id}`)
       .then((res) => console.log('res ::', res))
@@ -50,7 +50,7 @@ function TodoComponent({ num, todo }: TodoProps) {
         newTodo.score = textUpdateScore;
         setShowUpdateScore(false);
       }
-      dispatch(changeTodo(newTodo));
+      // dispatch(changeTodo(newTodo));
       axios
         .put('/api/todo', newTodo)
         .then((res) => console.log('res :: ', res.data))
@@ -72,7 +72,7 @@ function TodoComponent({ num, todo }: TodoProps) {
     const newTodo: Todo = { ...todo };
     newTodo.status = status;
     setOpen(false);
-    dispatch(changeTodo(newTodo));
+    // dispatch(changeTodo(newTodo));
     axios
       .put('/api/todo', newTodo)
       .then((res) => console.log('res :: ', res))
