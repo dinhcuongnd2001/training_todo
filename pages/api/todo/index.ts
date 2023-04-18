@@ -1,53 +1,43 @@
+import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Todo } from '@/interfaces';
-import { Status } from '@/constants';
-import { createDueDate } from '@/util';
+import { ApiResponse, Todo } from '@/interfaces';
 import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/util';
-// data
-let listTodo: Todo[] = [
-  {
-    id: '1',
-    name: 'Học React',
-    score: '12',
-    desc: 'Học React ',
-    status: Status.CLOSE,
-    dueDate: createDueDate(4),
-  },
-  {
-    id: '2',
-    name: 'Học NextJs',
-    score: '12',
-    desc: 'Học NextJs ',
-    status: Status.CLOSE,
-    dueDate: createDueDate(7),
-  },
-  {
-    id: '3',
-    name: 'Học Redux',
-    score: '13',
-    desc: 'Học NextJs ',
-    status: Status.CLOSE,
-    dueDate: createDueDate(9),
-  },
-];
+import listTodo from '@/db';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<Todo[] | {}>) {
-  if (req.method == 'GET') {
-    console.log('request :: ', req.query);
-    const newlistTodo = handleGetTodo(listTodo, req.query);
-    console.log('new ::', newlistTodo.length);
-    res.status(200).json(newlistTodo);
+const handler = nc<NextApiRequest, NextApiResponse>({
+  onError: (err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).end('Something broke!');
+  },
+  onNoMatch: (req, res) => {
+    res.status(404).end('Page is not found');
+  },
+});
+
+handler.get(
+  (req, res, next) => {
+    console.log('call middleware');
+    next();
+  },
+  (req, res: NextApiResponse<ApiResponse>, next) => {
+    const data = handleGetTodo(listTodo, req.query);
+    res.status(200).json(data);
   }
-  if (req.method == 'POST') {
-    handelAddTodo(listTodo, req.body);
-    res.status(201).json(listTodo);
-  }
-  if (req.method == 'PUT') {
-    handleChangeUpdate(listTodo, req.body);
-    res.status(200).json(listTodo);
-  }
-  if (req.method == 'DELETE') {
-    listTodo = handleChangeRemove(listTodo, req.query.id);
-    res.status(200).json(listTodo);
-  }
-}
+);
+
+handler.post('/api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+  handelAddTodo(listTodo, req.body);
+  res.status(201).json(listTodo);
+});
+
+handler.put('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+  handleChangeUpdate(listTodo, req.body);
+  res.status(200).json(listTodo);
+});
+
+handler.delete('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+  handleChangeRemove(listTodo, req.query.id);
+  res.status(200).json(listTodo);
+});
+
+export default handler;

@@ -11,12 +11,10 @@ class ApiHandle {
       });
 
       const queryString = paramKeys && paramKeys.length ? paramKeys.join('&') : '';
-      console.log('queryString ::', queryString);
       response = axios.get(`${url}?${queryString}`);
     } else {
       response = axios.get(`${url}`);
     }
-    response = axios.get(url);
     return response;
   }
   create(url: string, data: any) {
@@ -25,7 +23,7 @@ class ApiHandle {
   update(url: string, data: any) {
     return axios.put(url, data);
   }
-  delete(url: string, config: any) {
+  delete(url: string, config?: any) {
     return axios.delete(url, { ...config });
   }
 }

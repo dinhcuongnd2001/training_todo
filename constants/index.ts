@@ -3,3 +3,5 @@ export enum Status {
   TODO = 'TODO',
   BACKLOG = 'BACKLOG',
 }
+
+export const TODO_PER_PAGE = 2;

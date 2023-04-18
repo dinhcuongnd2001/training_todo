@@ -1,18 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 import CreateIcon from '@mui/icons-material/Create';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { useAppDispatch } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
+import ApiHandle from '../service';
 import Link from 'next/link';
 import axios from 'axios';
 export interface TodoProps {
   num: number;
   todo: Todo;
+  checkUpdate: Dispatch<SetStateAction<boolean>>;
 }
 
-function TodoComponent({ num, todo }: TodoProps) {
+function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const [showUpdate, setShowUpdate] = useState<boolean>(false);
   const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
   const [textUpdate, setTextUpdate] = useState<string>(todo.name);
@@ -32,11 +34,11 @@ function TodoComponent({ num, todo }: TodoProps) {
   };
 
   const handleClickIconRemove = (): void => {
-    dispatch(removeTodo(todo.id));
-    axios
-      .delete(`/api/todo/?id=${todo.id}`)
-      .then((res) => console.log('res ::', res))
-      .catch((e) => console.log('err :', e));
+    ApiHandle.delete(`api/todo/${todo.id}`)
+      .then((res) => {
+        checkUpdate((pre) => !pre);
+      })
+      .catch((e) => console.log('error when remove ::', e));
   };
 
   const handleCheckUpdateScoreOrName = (e: React.KeyboardEvent<HTMLInputElement>, field: string): void => {
@@ -50,11 +52,11 @@ function TodoComponent({ num, todo }: TodoProps) {
         newTodo.score = textUpdateScore;
         setShowUpdateScore(false);
       }
-      dispatch(changeTodo(newTodo));
-      axios
-        .put('/api/todo', newTodo)
-        .then((res) => console.log('res :: ', res.data))
-        .catch((e) => console.log('e :: ', e));
+      ApiHandle.update('api/todo', newTodo)
+        .then((res) => {
+          checkUpdate((pre) => !pre);
+        })
+        .catch((e) => console.log(e));
     }
   };
 
@@ -72,7 +74,6 @@ function TodoComponent({ num, todo }: TodoProps) {
     const newTodo: Todo = { ...todo };
     newTodo.status = status;
     setOpen(false);
-    dispatch(changeTodo(newTodo));
     axios
       .put('/api/todo', newTodo)
       .then((res) => console.log('res :: ', res))

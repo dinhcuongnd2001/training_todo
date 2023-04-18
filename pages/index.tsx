@@ -12,36 +12,19 @@ import ApiHandle from '../service';
 
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
+  const [totalPages, setTotalPages] = useState<number>();
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [checkUpdate, setCheckUpdate] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
   const router = useRouter();
-  // const checkRef = useRef<boolean>(false); // check already get data from localstorage
   const todosPerPage = 2;
   const numPageShow = 5;
   const nearPage = 2;
-  let totalPages = Math.ceil(todoList.length / 5);
   let { status, search, page } = router.query;
-  status = status ? status : 'ALL';
-  search = search ? search : '';
+  status = status ? String(status) : 'ALL';
+  search = search ? String(search) : '';
   page = page ? page : '1';
-
-  const filterTodo = (status: string | string[], search: string | string[], page: string): Todo[] => {
-    const newTodoList = () => {
-      if (status === 'ALL') {
-        if (search == '') return todoList;
-        return todoList.filter((x) => x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase()));
-      } else {
-        if (search == '') return todoList.filter((x) => x.status === status);
-        return todoList.filter(
-          (x) => x.status == status && x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase())
-        );
-      }
-    };
-
-    totalPages = Math.ceil(newTodoList().length / todosPerPage);
-    return newTodoList().slice(todosPerPage * (+page - 1), todosPerPage * +page);
-  };
 
   const handleChangeStatus = (status: string) => {
     const { page, ...rest } = router.query;
@@ -51,7 +34,6 @@ export default function Home() {
         status,
       },
     });
-    ApiHandle.get('/api/todo', { ...rest, status: status });
   };
 
   const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
@@ -78,17 +60,20 @@ export default function Home() {
   };
 
   useEffect(() => {
-    ApiHandle.get('/api/todo/')
+    if (!router.isReady) return;
+    if (openModal) return;
+    console.log('called Api');
+    ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
-        dispatch(fetchTodoList(res.data));
+        console.log('res ::', res);
+        setTotalPages(res.data.totalPages);
+        dispatch(fetchTodoList(res.data.listTodo));
       })
       .catch((e) => console.log('err ::', e));
-  }, []);
+  }, [router.isReady, status, search, page, checkUpdate]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
-  const todoShow = filterTodo(status, search, page as string);
-  // if (router.isReady == true) return null;
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
       <div className="mb-4 flex items-center">
@@ -131,11 +116,11 @@ export default function Home() {
               <th className="w-[200px]">Due Date</th>
             </tr>
           </thead>
-          {todoShow.length ? (
+          {todoList.length ? (
             <tbody>
               {todoList.length > 0
-                ? todoShow.map((each, index) => {
-                    return <TodoComponent key={each.id} num={index} todo={each} />;
+                ? todoList.map((each, index) => {
+                    return <TodoComponent key={each.id} num={index} todo={each} checkUpdate={setCheckUpdate} />;
                   })
                 : null}
             </tbody>
@@ -155,10 +140,17 @@ export default function Home() {
           <p>Total Pages : {totalPages}</p>
           <p>Todos Per Page: {todosPerPage}</p>
         </div>
-        <Panigation totalPages={totalPages} currentPage={+page} numPageShow={numPageShow} nearPage={nearPage} />
+        <Panigation totalPages={Number(totalPages)} currentPage={+page} numPageShow={numPageShow} nearPage={nearPage} />
       </>
 
-      {openModal ? <ComponentAdd openModal={openModal} setOpenModal={setOpenModal} setFilter={setFilter} /> : null}
+      {openModal ? (
+        <ComponentAdd
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+          setFilter={setFilter}
+          setCheckAdd={setCheckUpdate}
+        />
+      ) : null}
     </main>
   );
 }

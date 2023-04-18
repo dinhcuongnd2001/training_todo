@@ -1,4 +1,5 @@
-import { ParamsForGetApi, Todo } from '@/interfaces';
+import { TODO_PER_PAGE } from '@/constants';
+import { ParamsForGetApi, Todo, ApiResponse } from '@/interfaces';
 
 export const createDueDate = (dueDate: number) => {
   var someDate = new Date();
@@ -19,7 +20,6 @@ export const handleChangeUpdate = (listTodo: Todo[], param: Todo) => {
 
 export const handleChangeRemove = (listTodo: Todo[], id: any) => {
   listTodo = listTodo.filter((x) => x.id != id);
-  return listTodo;
 };
 
 export const handleGetTodo = (
@@ -27,21 +27,23 @@ export const handleGetTodo = (
   {
     status,
     search,
+    page,
   }: Partial<{
     [key: string]: string | string[];
   }>
-) => {
-  if (status === 'ALL' || status == undefined) {
-    console.count('-------------------------');
-    console.log('status ::', status);
-    console.log('search ::', search);
+): ApiResponse => {
+  let newTodo: Todo[] = [...listTodo];
 
-    if (search == undefined || search == '') return listTodo;
-    return listTodo.filter((x) => search && x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase()));
-  } else {
-    if (search == undefined) return listTodo.filter((x) => x.status === status);
-    return listTodo.filter(
-      (x) => search && x.status == status && x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase())
-    );
+  if (search) {
+    newTodo = newTodo.filter((x) => x.name.toLocaleLowerCase().includes(search.toString().toLocaleLowerCase()));
   }
+  if (status && status !== 'ALL') {
+    newTodo = newTodo.filter((x) => x.status === status);
+  }
+  const totalPages = Math.ceil(newTodo.length / TODO_PER_PAGE);
+  const data = {
+    totalPages,
+    listTodo: newTodo.slice((Number(page) - 1) * TODO_PER_PAGE, Number(page) * TODO_PER_PAGE),
+  };
+  return data;
 };

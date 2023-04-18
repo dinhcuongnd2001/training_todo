@@ -1,5 +1,6 @@
 import { Status } from '@/constants';
 import { Dispatch, SetStateAction } from 'react';
+
 export interface Todo {
   id: string;
   name: string;
@@ -13,6 +14,7 @@ export interface AddTodoProps {
   openModal: boolean;
   setOpenModal: Dispatch<SetStateAction<boolean>>;
   setFilter: Dispatch<SetStateAction<string>>;
+  setCheckAdd: Dispatch<SetStateAction<boolean>>;
 }
 
 export interface PanigationProps {
@@ -25,4 +27,10 @@ export interface PanigationProps {
 export interface ParamsForGetApi {
   status?: string;
   search?: string;
+  page: string;
+}
+
+export interface ApiResponse {
+  totalPages?: number;
+  listTodo: Todo[];
 }

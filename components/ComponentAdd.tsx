@@ -7,9 +7,9 @@ import { addTodo } from '@/redux/todo.slice';
 import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import ApiHandle from '../service';
 
-function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
+function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTodoProps) {
   const router = useRouter();
   const [todo, setTodo] = useState<Todo>({
     id: uuidv4(),
@@ -30,15 +30,14 @@ function ComponentAdd({ openModal, setOpenModal, setFilter }: AddTodoProps) {
     if (currName) {
       alert('Ten Bi Trung');
     } else {
-      dispatch(addTodo(todo));
-      axios
-        .post('/api/todo', todo)
-        .then((res) => {
-          console.log('res ::', res);
-        })
-        .catch((e) => console.log(e));
+      ApiHandle.create('api/todo', todo)
+        .then((res) => {})
+        .catch((e) => console.log('e ::', e));
       setTodo({ id: uuidv4(), name: '', score: '', status: Status.CLOSE, desc: '', dueDate: '' });
       setOpenModal(false);
+      setCheckAdd((pre) => {
+        return !pre;
+      });
       setFilter('');
       router.push('');
     }
