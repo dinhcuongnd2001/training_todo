@@ -1,8 +1,15 @@
-import nc from 'next-connect';
+import nc, { NextHandler } from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ApiResponse, Todo } from '@/interfaces';
 import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/util';
-import listTodo from '@/db';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+const getDataFromDB = async () => {
+  const listTodo = await prisma.todo.findMany();
+  return listTodo;
+};
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err, req, res, next) => {
@@ -14,30 +21,25 @@ const handler = nc<NextApiRequest, NextApiResponse>({
   },
 });
 
-handler.get(
-  (req, res, next) => {
-    console.log('call middleware');
-    next();
-  },
-  (req, res: NextApiResponse<ApiResponse>, next) => {
-    const data = handleGetTodo(listTodo, req.query);
-    res.status(200).json(data);
-  }
-);
-
-handler.post('/api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
-  handelAddTodo(listTodo, req.body);
-  res.status(201).json(listTodo);
+handler.get(async (req, res: NextApiResponse<ApiResponse>, next) => {
+  const listTodo = await getDataFromDB();
+  const data = handleGetTodo(listTodo, req.query);
+  res.status(200).json(data);
 });
 
-handler.put('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
-  handleChangeUpdate(listTodo, req.body);
-  res.status(200).json(listTodo);
+handler.post('/api/todo', async (req, res: NextApiResponse<Todo[]>, next) => {
+  // handelAddTodo(listTodo, req.body);
+  // res.status(201).json(listTodo);
 });
 
-handler.delete('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
-  handleChangeRemove(listTodo, req.query.id);
-  res.status(200).json(listTodo);
-});
+// handler.put('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+//   handleChangeUpdate(listTodo, req.body);
+//   res.status(200).json(listTodo);
+// });
+
+// handler.delete('api/todo', (req, res: NextApiResponse<Todo[]>, next) => {
+//   handleChangeRemove(listTodo, req.query.id);
+//   res.status(200).json(listTodo);
+// });
 
 export default handler;

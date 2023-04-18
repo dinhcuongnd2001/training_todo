@@ -2,12 +2,12 @@ import { Status } from '@/constants';
 import { Dispatch, SetStateAction } from 'react';
 
 export interface Todo {
-  id: string;
+  id?: number;
   name: string;
   score: string;
   desc: string;
   status: Status | string;
-  dueDate: string;
+  dueDate?: string;
 }
 
 export interface AddTodoProps {
