@@ -18,6 +18,8 @@ model User {
   email String  @unique
   name  String
   password String
+ 
+  // @id(id)
 }
 
 model Todo {

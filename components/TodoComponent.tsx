@@ -7,7 +7,6 @@ import { useAppDispatch } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import ApiHandle from '../service';
 import Link from 'next/link';
-import axios from 'axios';
 export interface TodoProps {
   num: number;
   todo: Todo;
