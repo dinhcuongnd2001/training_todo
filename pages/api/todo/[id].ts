@@ -2,7 +2,27 @@ import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Todo } from '@/interfaces';
 import listTodo from '@/db';
-import { handleChangeRemove } from '@/util';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+const handleUpdate = async (id: number, data: Todo) => {
+  const newTodo = await prisma.todo.update({
+    where: { id: id },
+    data: {
+      ...data,
+    },
+  });
+  return newTodo;
+};
+
+const handleRemove = async (id: number) => {
+  const res = await prisma.todo.delete({
+    where: {
+      id: id,
+    },
+  });
+  return res;
+};
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err, req, res, next) => {
@@ -14,10 +34,17 @@ const handler = nc<NextApiRequest, NextApiResponse>({
   },
 });
 
-handler.delete((req, res: NextApiResponse<Todo[]>, next) => {
-  const id = String(req.query.id);
-  handleChangeRemove(listTodo, id);
-  res.status(200).json(listTodo);
+handler.put(async (req, res: NextApiResponse<Todo>, next) => {
+  const id = Number(req.query.id);
+  const newTodo = await handleUpdate(id, req.body);
+  res.status(200).json(newTodo);
+});
+
+handler.delete(async (req, res: NextApiResponse<Todo>, next) => {
+  const id = Number(req.query.id);
+  const result = await handleRemove(id);
+  console.log('result ::', result);
+  res.status(200).json(result);
 });
 
 export default handler;

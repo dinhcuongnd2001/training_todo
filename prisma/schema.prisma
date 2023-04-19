@@ -3,6 +3,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TodoStatus {
+  CLOSE 
+  TODO 
+  BACKLOG 
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,6 +17,7 @@ model User {
   id    Int     @id @default(autoincrement())
   email String  @unique
   name  String
+  password String
 }
 
 model Todo {
@@ -18,5 +25,5 @@ model Todo {
   name String @unique
   score String 
   desc String 
-  status String
+  status TodoStatus
 }

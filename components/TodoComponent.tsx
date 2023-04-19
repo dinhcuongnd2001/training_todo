@@ -52,9 +52,10 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
         newTodo.score = textUpdateScore;
         setShowUpdateScore(false);
       }
-      ApiHandle.update('api/todo', newTodo)
+      dispatch(changeTodo(newTodo));
+      ApiHandle.update(`api/todo/${todo.id}`, newTodo)
         .then((res) => {
-          checkUpdate((pre) => !pre);
+          console.log('data after update ::', res);
         })
         .catch((e) => console.log(e));
     }
@@ -74,10 +75,12 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
     const newTodo: Todo = { ...todo };
     newTodo.status = status;
     setOpen(false);
-    axios
-      .put('/api/todo', newTodo)
-      .then((res) => console.log('res :: ', res))
-      .catch((e) => console.log('e:: ', e));
+    dispatch(changeTodo(newTodo));
+    ApiHandle.update(`api/todo/${todo.id}`, newTodo)
+      .then((res) => {
+        console.log('data after update ::', res);
+      })
+      .catch((e) => console.log('e in change status ::', e));
   };
 
   const handleClickIconUpdateScore = (): void => {
@@ -180,9 +183,6 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
 
         <td className="">
           <span>{todo.status}</span>
-        </td>
-        <td>
-          <span>{todo.dueDate}</span>
         </td>
       </tr>
 

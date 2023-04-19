@@ -8,20 +8,18 @@ import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
 import ApiHandle from '../service';
+import { TodoStatus } from '@prisma/client';
 
 function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTodoProps) {
   const router = useRouter();
   const [todo, setTodo] = useState<Todo>({
-    id: uuidv4(),
     name: '',
     score: '',
-    status: Status.CLOSE,
+    status: TodoStatus.CLOSE,
     desc: '',
-    dueDate: '',
   });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const dispatch = useAppDispatch();
-
   const getTodoList = useAppSelector((state) => state.todolist.list);
   const handleSubmit = (): void => {
     const currName = getTodoList.find(
@@ -33,7 +31,7 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
       ApiHandle.create('api/todo', todo)
         .then((res) => {})
         .catch((e) => console.log('e ::', e));
-      setTodo({ id: uuidv4(), name: '', score: '', status: Status.CLOSE, desc: '', dueDate: '' });
+      setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '' });
       setOpenModal(false);
       setCheckAdd((pre) => {
         return !pre;
@@ -87,7 +85,7 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
             />
           </div>
 
-          <div className="mb-5">
+          {/* <div className="mb-5">
             <input
               className="p-2 border rounded"
               name="dueDate"
@@ -98,7 +96,7 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
                 setTodo({ ...todo, [e.target.name]: e.target.value });
               }}
             />
-          </div>
+          </div> */}
 
           <div className="mb-10">
             <label className="mr-3">Status</label>

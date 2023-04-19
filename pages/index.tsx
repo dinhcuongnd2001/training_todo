@@ -26,6 +26,8 @@ export default function Home() {
   search = search ? String(search) : '';
   page = page ? page : '1';
 
+  console.log('checkupdate ::', checkUpdate);
+
   const handleChangeStatus = (status: string) => {
     const { page, ...rest } = router.query;
     router.push({
@@ -62,7 +64,7 @@ export default function Home() {
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
-    console.log('called Api');
+    console.log('call api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
         console.log('res ::', res);
@@ -113,7 +115,7 @@ export default function Home() {
               <th className="w-[400px]">Name</th>
               <th className="w-[300px]">Score</th>
               <th className="w-[150px]">Status</th>
-              <th className="w-[200px]">Due Date</th>
+              {/* <th className="w-[200px]">Due Date</th> */}
             </tr>
           </thead>
           {todoList.length ? (

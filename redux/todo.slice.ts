@@ -21,8 +21,8 @@ export const todoListSlice = createSlice({
     },
 
     removeTodo: (state, action: PayloadAction<string>) => {
-      const filterList = state.list.filter((x) => x.id != action.payload);
-      state.list = filterList;
+      // const filterList = state.list.filter((x) => x.id != action.payload);
+      // state.list = filterList;
     },
 
     changeTodo: (state, action: PayloadAction<Todo>) => {
