@@ -43,7 +43,6 @@ handler.put(async (req, res: NextApiResponse<Todo>, next) => {
 handler.delete(async (req, res: NextApiResponse<Todo>, next) => {
   const id = Number(req.query.id);
   const result = await handleRemove(id);
-  console.log('result ::', result);
   res.status(200).json(result);
 });
 
