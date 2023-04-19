@@ -1,18 +1,15 @@
 import { Todo } from '@/interfaces';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-export default function DetailTodo() {
-  const [currentTodo, setCurrentTodo] = useState<Todo>();
+import { PrismaClient } from '@prisma/client';
+
+interface DetailProp {
+  todo: Todo;
+}
+
+export default function DetailTodo({ todo }: DetailProp) {
+  const [currentTodo, setCurrentTodo] = useState<Todo>(todo);
   const router = useRouter();
-  const { slug } = router.query;
-  useEffect(() => {
-    const list = localStorage.getItem('todoList');
-    if (list) {
-      const listTodo: Todo[] = JSON.parse(list);
-      const findTodo = listTodo.find((x) => x.name === slug);
-      setCurrentTodo(findTodo);
-    }
-  }, [slug]);
   const handleClick = () => {
     router.back();
   };
@@ -33,3 +30,15 @@ export default function DetailTodo() {
     </div>
   );
 }
+
+export const getServerSideProps = async (context: any) => {
+  const prisma = new PrismaClient();
+  const todo = await prisma.todo.findUnique({
+    where: { name: context.query.slug },
+  });
+  return {
+    props: {
+      todo,
+    } as DetailProp,
+  };
+};

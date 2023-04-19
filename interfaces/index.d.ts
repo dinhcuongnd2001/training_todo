@@ -1,13 +1,13 @@
 import { Status } from '@/constants';
+import { TodoStatus } from '@prisma/client';
 import { Dispatch, SetStateAction } from 'react';
 
 export interface Todo {
-  id: string;
+  id?: number;
   name: string;
   score: string;
   desc: string;
-  status: Status | string;
-  dueDate: string;
+  status: TodoStatus;
 }
 
 export interface AddTodoProps {

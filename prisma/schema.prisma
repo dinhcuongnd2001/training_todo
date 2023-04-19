@@ -1,0 +1,29 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TodoStatus {
+  CLOSE 
+  TODO 
+  BACKLOG 
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String
+  password String
+}
+
+model Todo {
+  id Int @id @default(autoincrement())
+  name String @unique
+  score String 
+  desc String 
+  status TodoStatus
+}

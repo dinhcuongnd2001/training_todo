@@ -17,6 +17,7 @@ export default function Home() {
   const [checkUpdate, setCheckUpdate] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
+  console.log('todoList ::', todoList);
   const router = useRouter();
   const todosPerPage = 2;
   const numPageShow = 5;
@@ -25,6 +26,8 @@ export default function Home() {
   status = status ? String(status) : 'ALL';
   search = search ? String(search) : '';
   page = page ? page : '1';
+
+  console.log('checkupdate ::', checkUpdate);
 
   const handleChangeStatus = (status: string) => {
     const { page, ...rest } = router.query;
@@ -62,7 +65,7 @@ export default function Home() {
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
-    console.log('called Api');
+    console.log('call api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
         console.log('res ::', res);
@@ -113,7 +116,7 @@ export default function Home() {
               <th className="w-[400px]">Name</th>
               <th className="w-[300px]">Score</th>
               <th className="w-[150px]">Status</th>
-              <th className="w-[200px]">Due Date</th>
+              {/* <th className="w-[200px]">Due Date</th> */}
             </tr>
           </thead>
           {todoList.length ? (
