@@ -17,6 +17,7 @@ export default function Home() {
   const [checkUpdate, setCheckUpdate] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
+  console.log('todoList ::', todoList);
   const router = useRouter();
   const todosPerPage = 2;
   const numPageShow = 5;

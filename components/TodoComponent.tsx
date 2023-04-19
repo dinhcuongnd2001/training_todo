@@ -25,7 +25,6 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
   const dispatch = useAppDispatch();
-
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const handleOpen = (): void => setOpen(true);
 
@@ -75,9 +74,9 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
     const newTodo: Todo = { ...todo };
     newTodo.status = status;
     setOpen(false);
-    dispatch(changeTodo(newTodo));
     ApiHandle.update(`api/todo/${todo.id}`, newTodo)
       .then((res) => {
+        checkUpdate((pre) => !pre);
         console.log('data after update ::', res);
       })
       .catch((e) => console.log('e in change status ::', e));

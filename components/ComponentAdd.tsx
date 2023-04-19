@@ -19,7 +19,6 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
     desc: '',
   });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
-  const dispatch = useAppDispatch();
   const getTodoList = useAppSelector((state) => state.todolist.list);
   const handleSubmit = (): void => {
     const currName = getTodoList.find(
