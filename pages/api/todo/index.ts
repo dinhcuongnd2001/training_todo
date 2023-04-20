@@ -1,7 +1,7 @@
 import nc, { NextHandler } from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ApiResponse, Todo } from '@/interfaces';
-import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/util';
+import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/utils';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
 

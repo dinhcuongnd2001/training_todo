@@ -27,8 +27,6 @@ export default function Home() {
   search = search ? String(search) : '';
   page = page ? page : '1';
 
-  console.log('checkupdate ::', checkUpdate);
-
   const handleChangeStatus = (status: string) => {
     const { page, ...rest } = router.query;
     router.push({

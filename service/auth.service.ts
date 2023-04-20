@@ -8,6 +8,16 @@ const instance = axios.create({
   },
 });
 
+instance.interceptors.response.use(
+  (response) => {
+    return response.data ? response.data : response;
+  },
+  (error) => {
+    const { message } = error.response?.data;
+    return message ? Promise.reject(message) : Promise.reject(error);
+  }
+);
+
 class AuthService {
   login = (data: LoginDataType) => {
     return instance.post('login', data);

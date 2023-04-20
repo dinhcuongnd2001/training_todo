@@ -31,7 +31,7 @@ export default function Register() {
                       alert('Register Success');
                       router.push('/auth/login');
                     })
-                    .catch((e) => console.log('e ::', e));
+                    .catch((e) => alert(e));
                 }
               }}
             >
