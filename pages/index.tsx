@@ -2,15 +2,12 @@ import { useState, useEffect, useLayoutEffect, ChangeEvent, useRef } from 'react
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
 import Panigation from '@/components/pagination';
-import { ParamsForGetApi, Todo } from '@/interfaces';
 import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
 import { useRouter } from 'next/router';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
-import jwt from 'jsonwebtoken';
-
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>();
@@ -59,18 +56,21 @@ export default function Home() {
   const handleOpenModal = () => {
     setOpenModal(true);
   };
-
+  const handleLogout = () => {
+    router.push('/auth/login');
+    // dispatch()
+  };
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
     // console.log('call api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
-        // console.log('res ::', res);
+        // console.log('res ::', res.data);
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
       })
-      .catch((e) => console.log('err ::', e));
+      .catch((e) => console.log('e ::', e));
   }, [router.isReady, status, search, page, checkUpdate]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
@@ -104,6 +104,10 @@ export default function Home() {
             +
           </button>
         </div>
+
+        <button className="ml-5 bg-red-500 p-3 text-white" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
 
       <>
@@ -117,7 +121,7 @@ export default function Home() {
               {/* <th className="w-[200px]">Due Date</th> */}
             </tr>
           </thead>
-          {todoList.length ? (
+          {todoList?.length ? (
             <tbody>
               {todoList.length > 0
                 ? todoList.map((each, index) => {
@@ -149,7 +153,7 @@ export default function Home() {
           openModal={openModal}
           setOpenModal={setOpenModal}
           setFilter={setFilter}
-          setCheckAdd={setCheckUpdate}
+          setCheckUpdate={setCheckUpdate}
         />
       ) : null}
     </main>

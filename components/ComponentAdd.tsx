@@ -10,13 +10,14 @@ import { useRouter } from 'next/router';
 import ApiHandle from '../service';
 import { TodoStatus } from '@prisma/client';
 
-function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTodoProps) {
+function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: AddTodoProps) {
   const router = useRouter();
   const [todo, setTodo] = useState<Todo>({
     name: '',
     score: '',
     status: TodoStatus.CLOSE,
     desc: '',
+    authorId: 0,
   });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const getTodoList = useAppSelector((state) => state.todolist.list);
@@ -28,13 +29,14 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
       alert('Ten Bi Trung');
     } else {
       ApiHandle.create('api/todo', todo)
-        .then((res) => {})
+        .then((res) => {
+          setCheckUpdate((pre) => {
+            return !pre;
+          });
+        })
         .catch((e) => console.log('e ::', e));
-      setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '' });
+      setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '', authorId: 0 });
       setOpenModal(false);
-      setCheckAdd((pre) => {
-        return !pre;
-      });
       setFilter('');
       router.push('');
     }
@@ -83,19 +85,6 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
               }}
             />
           </div>
-
-          {/* <div className="mb-5">
-            <input
-              className="p-2 border rounded"
-              name="dueDate"
-              type="date"
-              placeholder=""
-              value={todo.dueDate}
-              onChange={(e) => {
-                setTodo({ ...todo, [e.target.name]: e.target.value });
-              }}
-            />
-          </div> */}
 
           <div className="mb-10">
             <label className="mr-3">Status</label>

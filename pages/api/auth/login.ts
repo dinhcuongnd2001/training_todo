@@ -27,7 +27,7 @@ const handleLogin = async (data: LoginDataType) => {
       title: 'The Password or Email is not true',
     });
 
-  const token = generationToken({ email: data.email });
+  const token = generationToken({ id: user.id });
   return token;
 };
 

@@ -1,17 +1,23 @@
 import nc, { NextHandler } from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { ApiResponse, Todo } from '@/interfaces';
-import { handleChangeRemove, handleChangeUpdate, handelAddTodo, handleGetTodo } from '@/utils';
+import { ApiResponse, AuthenticatedRequest, Todo } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
+import { checkAuth } from '@/utils/middleware';
+import { PayloadToken } from '@/utils/auth.util';
+
+interface CreateTodoRequest extends AuthenticatedRequest {
+  body: Omit<Todo, 'authorId'>;
+}
 
 const prisma = new PrismaClient();
 
-const getDataFromDB = async (search: string, page: number, status?: TodoStatus) => {
-  const statusCondition = status ? { status: { equals: status } } : {};
+const getDataFromDB = async (search: string, page: number, id: number, status?: TodoStatus) => {
+  const statusCondition = status ? { status } : {};
   const listTodo = await prisma.todo.findMany({
     where: {
       name: { contains: search, mode: 'insensitive' },
+      authorId: id,
       ...statusCondition,
     },
     take: TODO_PER_PAGE,
@@ -20,6 +26,7 @@ const getDataFromDB = async (search: string, page: number, status?: TodoStatus) 
   const total = await prisma.todo.count({
     where: {
       name: { contains: search, mode: 'insensitive' },
+      authorId: id,
       ...statusCondition,
     },
   });
@@ -36,7 +43,6 @@ const createData = async (data: Todo) => {
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err, req, res, next) => {
-    console.error(err.stack);
     res.status(500).end('Something broken');
   },
   onNoMatch: (req, res) => {
@@ -44,19 +50,22 @@ const handler = nc<NextApiRequest, NextApiResponse>({
   },
 });
 
-handler.get(async (req, res: NextApiResponse<ApiResponse>, next) => {
+handler.get(checkAuth, async (req: AuthenticatedRequest, res: NextApiResponse<ApiResponse>, next) => {
   const { status, search, page } = req.query;
+  const authorId = req.authorId;
+
   let newStatus: TodoStatus | undefined;
   if (status !== 'ALL') {
     newStatus = status as TodoStatus;
   }
-  const data = await getDataFromDB(String(search), Number(page), newStatus);
+  const data = await getDataFromDB(String(search), Number(page), authorId, newStatus);
   // const data = handleGetTodo(listTodo, req.query);
   res.status(200).json(data);
 });
 
-handler.post(async (req, res: NextApiResponse<Todo>, next) => {
-  const newTodo = await createData(req.body);
+handler.post(checkAuth, async (req: CreateTodoRequest, res: NextApiResponse<Todo>, next) => {
+  const authorId = req.authorId;
+  const newTodo = await createData({ ...req.body, authorId });
   res.status(201).json(newTodo);
 });
 

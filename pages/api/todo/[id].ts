@@ -2,11 +2,14 @@ import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Todo } from '@/interfaces';
 import { PrismaClient } from '@prisma/client';
+import { checkAuth } from '@/utils/middleware';
+import jwt from 'jsonwebtoken';
+import { PayloadToken } from '@/utils/auth.util';
 const prisma = new PrismaClient();
 
-const handleUpdate = async (id: number, data: Todo) => {
+const handleUpdate = async (idTodo: number, data: Todo) => {
   const newTodo = await prisma.todo.update({
-    where: { id: id },
+    where: { id: idTodo },
     data: {
       ...data,
     },
@@ -33,13 +36,13 @@ const handler = nc<NextApiRequest, NextApiResponse>({
   },
 });
 
-handler.put(async (req, res: NextApiResponse<Todo>, next) => {
+handler.put(checkAuth, async (req, res: NextApiResponse<Todo>, next) => {
   const id = Number(req.query.id);
   const newTodo = await handleUpdate(id, req.body);
   res.status(200).json(newTodo);
 });
 
-handler.delete(async (req, res: NextApiResponse<Todo>, next) => {
+handler.delete(checkAuth, async (req, res: NextApiResponse<Todo>, next) => {
   const id = Number(req.query.id);
   const result = await handleRemove(id);
   res.status(200).json(result);

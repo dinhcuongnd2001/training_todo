@@ -2,7 +2,8 @@ import { Todo } from '@/interfaces';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { PrismaClient } from '@prisma/client';
-
+import { NextApiRequest, NextApiResponse } from 'next/types';
+import ApiHandle from '../../service';
 interface DetailProp {
   todo: Todo;
 }
@@ -13,6 +14,15 @@ export default function DetailTodo({ todo }: DetailProp) {
   const handleClick = () => {
     router.back();
   };
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { slug } = router.query;
+    // console.log('slug ::', slug);
+    ApiHandle.get(`/api/todo/?slug=${slug}`)
+      .then((res) => {})
+      .catch((err) => console.log('err ::', err));
+  }, [router.isReady]);
 
   return (
     <div className="w-full h-[100vh] bg-white text-black justify-center items-center flex">
@@ -31,14 +41,15 @@ export default function DetailTodo({ todo }: DetailProp) {
   );
 }
 
-export const getServerSideProps = async (context: any) => {
-  const prisma = new PrismaClient();
-  const todo = await prisma.todo.findUnique({
-    where: { name: context.query.slug },
-  });
-  return {
-    props: {
-      todo,
-    } as DetailProp,
-  };
-};
+// export const getServerSideProps = async (context: any) => {
+//   // console.log('context req ::', context.req);
+//   const prisma = new PrismaClient();
+//   const todo = await prisma.todo.findUnique({
+//     where: { name: context.query.slug },
+//   });
+//   return {
+//     props: {
+//       todo,
+//     } as DetailProp,
+//   };
+// };
