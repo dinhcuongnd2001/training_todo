@@ -9,6 +9,7 @@ import { fetchTodoList } from '@/redux/todo.slice';
 import { useRouter } from 'next/router';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
+import jwt from 'jsonwebtoken';
 
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
@@ -17,7 +18,6 @@ export default function Home() {
   const [checkUpdate, setCheckUpdate] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const todoList = useAppSelector((state) => state.todolist.list);
-  console.log('todoList ::', todoList);
   const router = useRouter();
   const todosPerPage = 2;
   const numPageShow = 5;
@@ -26,8 +26,6 @@ export default function Home() {
   status = status ? String(status) : 'ALL';
   search = search ? String(search) : '';
   page = page ? page : '1';
-
-  console.log('checkupdate ::', checkUpdate);
 
   const handleChangeStatus = (status: string) => {
     const { page, ...rest } = router.query;
@@ -65,10 +63,10 @@ export default function Home() {
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
-    console.log('call api');
+    // console.log('call api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
-        console.log('res ::', res);
+        // console.log('res ::', res);
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
       })

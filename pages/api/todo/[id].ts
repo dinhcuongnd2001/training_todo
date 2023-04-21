@@ -1,7 +1,6 @@
 import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { Todo } from '@/interfaces';
-import listTodo from '@/db';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
