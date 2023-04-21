@@ -2,11 +2,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import authService from '@/service/auth.service';
 import { useRouter } from 'next/router';
-import cookies from 'next-cookies';
-
 export default function Login() {
   const [account, setAccount] = useState({ email: '', password: '' });
   const router = useRouter();
+
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -29,7 +28,6 @@ export default function Login() {
                 authService
                   .login({ email: account.email, password: account.password })
                   .then((res: any) => {
-                    console.log('res ::', res);
                     router.push('/');
                   })
                   .catch((e) => {

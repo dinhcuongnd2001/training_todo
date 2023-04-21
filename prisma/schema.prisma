@@ -18,8 +18,7 @@ model User {
   email String  @unique
   name  String
   password String
- 
-  // @id(id)
+  todos Todo[]
 }
 
 model Todo {
@@ -28,4 +27,6 @@ model Todo {
   score String 
   desc String 
   status TodoStatus
+  author User @relation(fields: [authorId], references: [id])
+  authorId  Int
 }

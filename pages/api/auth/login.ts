@@ -50,7 +50,8 @@ handler.post(async (req, res: NextApiResponse, next) => {
     );
     res.status(200).json({ message: 'success', access_token: token });
   } catch (error: any) {
-    res.status(error.props.statusCode).send({ message: error.props.title });
+    console.log('error ::', error);
+    res.status(401).send({ message: error.props.title });
   }
 });
 
