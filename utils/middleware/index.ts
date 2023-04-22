@@ -1,12 +1,13 @@
 import { PayloadToken } from './../auth.util';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AuthenticatedRequest } from '@/interfaces';
-
+import { AuthenticatedRequest, CreateTodoRequest } from '@/interfaces';
+import { PrismaClient, TodoStatus } from '@prisma/client';
+import jwt from 'jsonwebtoken';
 interface payloadData {
   id: number;
 }
+const prisma = new PrismaClient();
 
-import jwt from 'jsonwebtoken';
 export const checkAuth = async (req: AuthenticatedRequest, res: NextApiResponse, next: any) => {
   const secret = process.env.PRIVATE_KEY as string;
   const token = req.cookies.token as string;
@@ -15,12 +16,17 @@ export const checkAuth = async (req: AuthenticatedRequest, res: NextApiResponse,
     req.authorId = data.id;
     next();
   } catch (error) {
-    next(error);
+    next({ message: 'token expired' });
   }
 };
 
-export const checkPermission = async (req: AuthenticatedRequest, res: NextApiResponse, next: any) => {
-  const slug = req.query.slug;
-  console.log('slug ::', slug);
+export const checkUnique = async (req: CreateTodoRequest, res: NextApiResponse, next: any) => {
+  const data = req.body;
+  const todo = await prisma.todo.findUnique({
+    where: {
+      name: data.name,
+    },
+  });
+  if (todo) throw new Error('Todo Name has been existen');
   next();
 };

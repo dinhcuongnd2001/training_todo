@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { Status } from '@/constants';
 import { Todo } from '@/interfaces';
-import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
-import { addTodo } from '@/redux/todo.slice';
 import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
@@ -22,24 +20,19 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: Ad
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const getTodoList = useAppSelector((state) => state.todolist.list);
   const handleSubmit = (): void => {
-    const currName = getTodoList.find(
-      (x) => x.name.toLocaleLowerCase().trim() === todo.name.toLocaleLowerCase().trim()
-    );
-    if (currName) {
-      alert('Ten Bi Trung');
-    } else {
-      ApiHandle.create('api/todo', todo)
-        .then((res) => {
-          setCheckUpdate((pre) => {
-            return !pre;
-          });
-        })
-        .catch((e) => console.log('e ::', e));
-      setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '', authorId: 0 });
-      setOpenModal(false);
-      setFilter('');
-      router.push('');
-    }
+    ApiHandle.create('api/todo', todo)
+      .then((res) => {
+        setCheckUpdate((pre) => {
+          return !pre;
+        });
+      })
+      .catch((e) => {
+        alert(e.response.data);
+      });
+    setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '', authorId: 0 });
+    setOpenModal(false);
+    setFilter('');
+    router.push('');
   };
   const handleClose = (): void => {
     setOpenModal(false);

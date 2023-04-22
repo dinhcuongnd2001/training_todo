@@ -53,3 +53,7 @@ export interface AuthenticatedRequest extends NextApiRequest {
   };
   authorId: number;
 }
+
+export interface CreateTodoRequest extends AuthenticatedRequest {
+  body: Omit<Todo, 'authorId'>;
+}

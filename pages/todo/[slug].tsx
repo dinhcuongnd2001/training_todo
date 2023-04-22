@@ -12,16 +12,20 @@ export default function DetailTodo({ todo }: DetailProp) {
   const [currentTodo, setCurrentTodo] = useState<Todo>(todo);
   const router = useRouter();
   const handleClick = () => {
-    router.back();
+    router.push('/');
   };
 
   useEffect(() => {
     if (!router.isReady) return;
     const { slug } = router.query;
-    // console.log('slug ::', slug);
-    ApiHandle.get(`/api/todo/?slug=${slug}`)
-      .then((res) => {})
-      .catch((err) => console.log('err ::', err));
+    ApiHandle.get(`/api/todo/name/${slug}`)
+      .then((res) => {
+        setCurrentTodo(res.data);
+      })
+      .catch((e) => {
+        alert(e.response.data.message);
+        router.push('/');
+      });
   }, [router.isReady]);
 
   return (
@@ -40,16 +44,3 @@ export default function DetailTodo({ todo }: DetailProp) {
     </div>
   );
 }
-
-// export const getServerSideProps = async (context: any) => {
-//   // console.log('context req ::', context.req);
-//   const prisma = new PrismaClient();
-//   const todo = await prisma.todo.findUnique({
-//     where: { name: context.query.slug },
-//   });
-//   return {
-//     props: {
-//       todo,
-//     } as DetailProp,
-//   };
-// };

@@ -1,14 +1,10 @@
 import nc, { NextHandler } from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { ApiResponse, AuthenticatedRequest, Todo } from '@/interfaces';
+import { ApiResponse, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
-import { checkAuth } from '@/utils/middleware';
+import { checkAuth, checkUnique } from '@/utils/middleware';
 import { PayloadToken } from '@/utils/auth.util';
-
-interface CreateTodoRequest extends AuthenticatedRequest {
-  body: Omit<Todo, 'authorId'>;
-}
 
 const prisma = new PrismaClient();
 
@@ -43,7 +39,8 @@ const createData = async (data: Todo) => {
 
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err, req, res, next) => {
-    res.status(500).end('Something broken');
+    const { message } = err;
+    message ? res.status(401).end(message) : res.status(500).end('something broken');
   },
   onNoMatch: (req, res) => {
     res.status(404).end('Page is not found');
@@ -59,11 +56,11 @@ handler.get(checkAuth, async (req: AuthenticatedRequest, res: NextApiResponse<Ap
     newStatus = status as TodoStatus;
   }
   const data = await getDataFromDB(String(search), Number(page), authorId, newStatus);
-  // const data = handleGetTodo(listTodo, req.query);
+
   res.status(200).json(data);
 });
 
-handler.post(checkAuth, async (req: CreateTodoRequest, res: NextApiResponse<Todo>, next) => {
+handler.post(checkAuth, checkUnique, async (req: CreateTodoRequest, res: NextApiResponse<Todo>, next) => {
   const authorId = req.authorId;
   const newTodo = await createData({ ...req.body, authorId });
   res.status(201).json(newTodo);

@@ -57,20 +57,23 @@ export default function Home() {
     setOpenModal(true);
   };
   const handleLogout = () => {
+    document.cookie = 'token=;path=/';
     router.push('/auth/login');
-    // dispatch()
   };
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
-    // console.log('call api');
+    console.log('call api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
         // console.log('res ::', res.data);
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
       })
-      .catch((e) => console.log('e ::', e));
+      .catch((e) => {
+        console.log('called redirect');
+        // router.push('/auth/login');
+      });
   }, [router.isReady, status, search, page, checkUpdate]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
