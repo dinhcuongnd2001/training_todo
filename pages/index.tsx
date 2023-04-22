@@ -60,19 +60,18 @@ export default function Home() {
     document.cookie = 'token=;path=/';
     router.push('/auth/login');
   };
+
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
     console.log('call api');
     ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
       .then((res) => {
-        // console.log('res ::', res.data);
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
       })
       .catch((e) => {
-        console.log('called redirect');
-        // router.push('/auth/login');
+        router.push('/auth/login');
       });
   }, [router.isReady, status, search, page, checkUpdate]);
 
@@ -121,9 +120,10 @@ export default function Home() {
               <th className="w-[400px]">Name</th>
               <th className="w-[300px]">Score</th>
               <th className="w-[150px]">Status</th>
-              {/* <th className="w-[200px]">Due Date</th> */}
+              <th className="w-[200px]">Due Date</th>
             </tr>
           </thead>
+
           {todoList?.length ? (
             <tbody>
               {todoList.length > 0

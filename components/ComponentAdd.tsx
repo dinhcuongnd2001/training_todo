@@ -7,6 +7,7 @@ import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
 import ApiHandle from '../service';
 import { TodoStatus } from '@prisma/client';
+import { createDueDate } from '@/utils';
 
 function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: AddTodoProps) {
   const router = useRouter();
@@ -15,6 +16,7 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: Ad
     score: '',
     status: TodoStatus.CLOSE,
     desc: '',
+    dueDate: createDueDate(),
     authorId: 0,
   });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
@@ -29,7 +31,7 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: Ad
       .catch((e) => {
         alert(e.response.data);
       });
-    setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '', authorId: 0 });
+    setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '', dueDate: createDueDate(), authorId: 0 });
     setOpenModal(false);
     setFilter('');
     router.push('');

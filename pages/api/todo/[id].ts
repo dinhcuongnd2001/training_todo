@@ -3,8 +3,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { Todo } from '@/interfaces';
 import { PrismaClient } from '@prisma/client';
 import { checkAuth } from '@/utils/middleware';
-import jwt from 'jsonwebtoken';
-import { PayloadToken } from '@/utils/auth.util';
 const prisma = new PrismaClient();
 
 const handleUpdate = async (idTodo: number, data: Todo) => {
@@ -26,6 +24,10 @@ const handleRemove = async (id: number) => {
   return res;
 };
 
+interface TodoChangeRequest extends NextApiRequest {
+  body: Todo;
+}
+
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err, req, res, next) => {
     console.error(err.stack);
@@ -36,7 +38,7 @@ const handler = nc<NextApiRequest, NextApiResponse>({
   },
 });
 
-handler.put(checkAuth, async (req, res: NextApiResponse<Todo>, next) => {
+handler.put(checkAuth, async (req: TodoChangeRequest, res: NextApiResponse<Todo>, next) => {
   const id = Number(req.query.id);
   const newTodo = await handleUpdate(id, req.body);
   res.status(200).json(newTodo);

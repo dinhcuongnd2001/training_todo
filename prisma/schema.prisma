@@ -11,6 +11,7 @@ enum TodoStatus {
 
 enum Role {
   AUTHOR
+  USER
 }
 
 generator client {
@@ -31,6 +32,8 @@ model Todo {
   score String 
   desc String 
   status TodoStatus
+  dueDate String
   author User @relation(fields: [authorId], references: [id])
   authorId  Int
 }
+  

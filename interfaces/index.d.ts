@@ -8,6 +8,7 @@ export interface Todo {
   score: string;
   desc: string;
   status: TodoStatus;
+  dueDate: string;
   authorId: number;
 }
 
