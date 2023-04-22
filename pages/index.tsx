@@ -19,10 +19,11 @@ export default function Home() {
   const todosPerPage = 2;
   const numPageShow = 5;
   const nearPage = 2;
-  let { status, search, page } = router.query;
-  status = status ? String(status) : 'ALL';
-  search = search ? String(search) : '';
-  page = page ? page : '1';
+  let { status, search, page, order } = router.query;
+  const statusFilter = status ? String(status) : 'ALL';
+  const searchFilter = search ? String(search) : '';
+  const pageFilter = page ? String(page) : '1';
+  const orderFilter = order ? String(order) : 'asc';
 
   const handleChangeStatus = (status: string) => {
     const { page, ...rest } = router.query;
@@ -34,6 +35,7 @@ export default function Home() {
     });
   };
 
+  // console.log('order ::', order);
   const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
     const stringSearch = e.target.value.trim();
     const { search, page, ...rest } = router.query;
@@ -65,7 +67,7 @@ export default function Home() {
     if (!router.isReady) return;
     if (openModal) return;
     console.log('call api');
-    ApiHandle.get('/api/todo', { status: status as string, search: search as string, page: page as string })
+    ApiHandle.get('/api/todo', { status: statusFilter, search: searchFilter, page: pageFilter, order: orderFilter })
       .then((res) => {
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
@@ -73,10 +75,19 @@ export default function Home() {
       .catch((e) => {
         router.push('/auth/login');
       });
-  }, [router.isReady, status, search, page, checkUpdate]);
+  }, [router.isReady, status, order, search, page, checkUpdate]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
+  const changeSort = (typeOrder: string) => {
+    const { order, page, ...rest } = router.query;
+    router.push({
+      query: {
+        order: typeOrder,
+        ...rest,
+      },
+    });
+  };
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
       <div className="mb-4 flex items-center">
@@ -101,9 +112,22 @@ export default function Home() {
             onChange={handleChangeFilter}
           />
         </div>
+
         <div className="flex items-center">
           <button onClick={handleOpenModal} className="p-3 bg-red-500 text-white ml-5">
             +
+          </button>
+        </div>
+
+        <div className="flex items-center">
+          <button onClick={() => changeSort('asc')} className="p-3 bg-red-500 text-white ml-5">
+            asc
+          </button>
+        </div>
+
+        <div className="flex items-center">
+          <button onClick={() => changeSort('desc')} className="p-3 bg-red-500 text-white ml-5">
+            desc
           </button>
         </div>
 
@@ -148,7 +172,12 @@ export default function Home() {
           <p>Total Pages : {totalPages}</p>
           <p>Todos Per Page: {todosPerPage}</p>
         </div>
-        <Panigation totalPages={Number(totalPages)} currentPage={+page} numPageShow={numPageShow} nearPage={nearPage} />
+        <Panigation
+          totalPages={Number(totalPages)}
+          currentPage={+pageFilter}
+          numPageShow={numPageShow}
+          nearPage={nearPage}
+        />
       </>
 
       {openModal ? (

@@ -8,23 +8,41 @@ import { PayloadToken } from '@/utils/auth.util';
 
 const prisma = new PrismaClient();
 
-const getDataFromDB = async (search: string, page: number, id: number, status?: TodoStatus) => {
+const getDataFromDB = async (search: string, page: number, id: number, order: string, status?: TodoStatus) => {
   const statusCondition = status ? { status } : {};
+
   const listTodo = await prisma.todo.findMany({
     where: {
       name: { contains: search, mode: 'insensitive' },
       authorId: id,
       ...statusCondition,
     },
+    orderBy: [
+      {
+        dueDate: order === 'asc' ? 'asc' : 'desc',
+      },
+      {
+        id: order === 'asc' ? 'asc' : 'desc',
+      },
+    ],
     take: TODO_PER_PAGE,
     skip: (page - 1) * TODO_PER_PAGE,
   });
+
   const total = await prisma.todo.count({
     where: {
       name: { contains: search, mode: 'insensitive' },
       authorId: id,
       ...statusCondition,
     },
+    orderBy: [
+      {
+        dueDate: order === 'asc' ? 'asc' : 'desc',
+      },
+      {
+        id: order === 'asc' ? 'asc' : 'desc',
+      },
+    ],
   });
   const totalPages = Math.ceil(total / TODO_PER_PAGE);
   return { listTodo, totalPages };
@@ -48,15 +66,14 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 });
 
 handler.get(checkAuth, async (req: AuthenticatedRequest, res: NextApiResponse<ApiResponse>, next) => {
-  const { status, search, page } = req.query;
+  const { status, search, page, order } = req.query;
   const authorId = req.authorId;
 
   let newStatus: TodoStatus | undefined;
   if (status !== 'ALL') {
     newStatus = status as TodoStatus;
   }
-  const data = await getDataFromDB(String(search), Number(page), authorId, newStatus);
-
+  const data = await getDataFromDB(String(search), Number(page), authorId, order, newStatus);
   res.status(200).json(data);
 });
 

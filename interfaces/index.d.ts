@@ -30,6 +30,7 @@ export interface ParamsForGetApi {
   status?: string;
   search?: string;
   page: string;
+  order: string;
 }
 
 export interface ApiResponse {
@@ -49,6 +50,7 @@ export interface LoginDataType {
 }
 
 export interface AuthenticatedRequest extends NextApiRequest {
+  query: ParamsForGetApi;
   cookies: {
     token?: string;
   };
