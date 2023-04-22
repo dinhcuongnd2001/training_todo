@@ -1,43 +1,40 @@
 import { useState } from 'react';
 import { Status } from '@/constants';
 import { Todo } from '@/interfaces';
-import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
-import { addTodo } from '@/redux/todo.slice';
 import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
 import ApiHandle from '../service';
 import { TodoStatus } from '@prisma/client';
+import { createDueDate } from '@/utils';
 
-function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTodoProps) {
+function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: AddTodoProps) {
   const router = useRouter();
   const [todo, setTodo] = useState<Todo>({
     name: '',
     score: '',
     status: TodoStatus.CLOSE,
     desc: '',
+    dueDate: createDueDate(),
+    authorId: 0,
   });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const getTodoList = useAppSelector((state) => state.todolist.list);
   const handleSubmit = (): void => {
-    const currName = getTodoList.find(
-      (x) => x.name.toLocaleLowerCase().trim() === todo.name.toLocaleLowerCase().trim()
-    );
-    if (currName) {
-      alert('Ten Bi Trung');
-    } else {
-      ApiHandle.create('api/todo', todo)
-        .then((res) => {})
-        .catch((e) => console.log('e ::', e));
-      setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '' });
-      setOpenModal(false);
-      setCheckAdd((pre) => {
-        return !pre;
+    ApiHandle.create('api/todo', todo)
+      .then((res) => {
+        setCheckUpdate((pre) => {
+          return !pre;
+        });
+      })
+      .catch((e) => {
+        alert(e.response.data);
       });
-      setFilter('');
-      router.push('');
-    }
+    setTodo({ name: '', score: '', status: TodoStatus.CLOSE, desc: '', dueDate: createDueDate(), authorId: 0 });
+    setOpenModal(false);
+    setFilter('');
+    router.push('');
   };
   const handleClose = (): void => {
     setOpenModal(false);
@@ -83,19 +80,6 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckAdd }: AddTo
               }}
             />
           </div>
-
-          {/* <div className="mb-5">
-            <input
-              className="p-2 border rounded"
-              name="dueDate"
-              type="date"
-              placeholder=""
-              value={todo.dueDate}
-              onChange={(e) => {
-                setTodo({ ...todo, [e.target.name]: e.target.value });
-              }}
-            />
-          </div> */}
 
           <div className="mb-10">
             <label className="mr-3">Status</label>

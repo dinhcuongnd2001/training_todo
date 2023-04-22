@@ -9,13 +9,18 @@ enum TodoStatus {
   BACKLOG 
 }
 
+enum Role {
+  AUTHOR
+  USER
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
+  id Int @id @default(autoincrement())
+  email String @unique
   name  String
   password String
   todos Todo[]
@@ -27,6 +32,8 @@ model Todo {
   score String 
   desc String 
   status TodoStatus
+  dueDate String
   author User @relation(fields: [authorId], references: [id])
   authorId  Int
 }
+  

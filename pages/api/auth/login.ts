@@ -27,7 +27,7 @@ const handleLogin = async (data: LoginDataType) => {
       title: 'The Password or Email is not true',
     });
 
-  const token = generationToken({ email: data.email });
+  const token = generationToken({ id: user.id });
   return token;
 };
 
@@ -43,7 +43,7 @@ handler.post(async (req, res: NextApiResponse, next) => {
     res.setHeader(
       'Set-Cookie',
       cookie.serialize('token', token, {
-        httpOnly: true,
+        // httpOnly: true,
         path: '/',
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       })

@@ -7,6 +7,7 @@ import { useAppDispatch } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import ApiHandle from '../service';
 import Link from 'next/link';
+import { formatDate } from '@/utils';
 export interface TodoProps {
   num: number;
   todo: Todo;
@@ -16,11 +17,14 @@ export interface TodoProps {
 function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const [showUpdate, setShowUpdate] = useState<boolean>(false);
   const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
+  const [showUpdateDate, setShowUpdateDate] = useState<boolean>(false);
   const [textUpdate, setTextUpdate] = useState<string>(todo.name);
   const [textUpdateScore, setTextUpdateScore] = useState<string>(todo.score);
+  const [textUpdateDueDate, setTextUpdateDueDate] = useState<string>(todo.dueDate);
   const [open, setOpen] = useState<boolean>(false);
   const inputUpdateRef = useRef<HTMLInputElement>(null);
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
+  const inputUpdateDateRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
   const dispatch = useAppDispatch();
@@ -40,6 +44,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   };
 
   const handleCheckUpdateScoreOrName = (e: React.KeyboardEvent<HTMLInputElement>, field: string): void => {
+    const cloneTodo: Todo = { ...todo };
     if (e.key == 'Enter') {
       const newTodo: Todo = { ...todo };
       if (field == 'name') {
@@ -55,7 +60,9 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
         .then((res) => {
           console.log('data after update ::', res);
         })
-        .catch((e) => console.log(e));
+        .catch((e) => {
+          dispatch(changeTodo(cloneTodo));
+        });
     }
   };
 
@@ -85,6 +92,32 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
     setShowUpdateScore(true);
   };
 
+  const handleClickIconUpdateDate = (): void => {
+    setShowUpdateDate(true);
+  };
+
+  const handleChangeDate = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const todoClone: Todo = { ...todo };
+    setTextUpdateDueDate(formatDate(e.target.value));
+    setShowUpdateDate(false);
+    const newTodo: Todo = { ...todo };
+    newTodo.dueDate = formatDate(e.target.value);
+    if (new Date(e.target.value).getTime() < new Date().getTime()) {
+      alert(`The Due Date must be after ${formatDate(new Date().toString())}`);
+    } else {
+      // dispatch(changeTodo(newTodo));
+      ApiHandle.update(`/api/todo/${todo.id}`, newTodo)
+        .then((res) => {
+          // console.log('res after call API ::', res.data);
+          checkUpdate((pre) => !pre);
+        })
+        .catch((e) => {
+          // dispatch(changeTodo(todoClone));
+          console.log('err ::', e);
+        });
+    }
+  };
+
   useEffect(() => {
     inputUpdateRef.current?.focus();
   }, [showUpdate]);
@@ -106,6 +139,10 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   useEffect(() => {
     inputUpdateScoreRef.current?.focus();
   }, [showUpdateScore]);
+
+  useEffect(() => {
+    inputUpdateDateRef.current?.focus();
+  }, [showUpdateDate]);
 
   return (
     <>
@@ -182,6 +219,30 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
         <td className="">
           <span>{todo.status}</span>
         </td>
+
+        {/* due Date */}
+        {showUpdateDate ? (
+          <td className="">
+            <input
+              className=""
+              ref={inputUpdateDateRef}
+              value={textUpdateDueDate}
+              onChange={handleChangeDate}
+              type="date"
+              name="date"
+              onBlur={(e) => setShowUpdateDate(false)}
+            />
+          </td>
+        ) : (
+          <td className="group h-[50px]">
+            <div className="flex items-center">
+              <span>{todo.dueDate}</span>
+              <span className="ml-2 hidden group-hover:inline-block" onClick={handleClickIconUpdateDate}>
+                <CreateIcon className="cursor-pointer hover:opacity-70 inline-block" />
+              </span>
+            </div>
+          </td>
+        )}
       </tr>
 
       <tr className="relative">

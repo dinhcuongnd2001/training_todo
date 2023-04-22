@@ -1,12 +1,15 @@
 import { TODO_PER_PAGE } from '@/constants';
 import { ParamsForGetApi, Todo, ApiResponse } from '@/interfaces';
 
-export const createDueDate = (dueDate: number) => {
+export const createDueDate = (dueDate = 5) => {
   var someDate = new Date();
-  var numberOfDaysToAdd = dueDate;
-  var result = someDate.setDate(someDate.getDate() + numberOfDaysToAdd);
+  var result = someDate.setDate(someDate.getDate() + dueDate);
   const newDate = new Date(result);
-  return `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`;
+  return newDate.toLocaleDateString('en-US');
+};
+
+export const formatDate = (datetime: string) => {
+  return new Date(datetime).toLocaleDateString('en-US');
 };
 
 export const handelAddTodo = (listTodo: Todo[], param: Todo) => {

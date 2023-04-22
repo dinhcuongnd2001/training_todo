@@ -2,7 +2,8 @@ import { Todo } from '@/interfaces';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { PrismaClient } from '@prisma/client';
-
+import { NextApiRequest, NextApiResponse } from 'next/types';
+import ApiHandle from '../../service';
 interface DetailProp {
   todo: Todo;
 }
@@ -11,8 +12,21 @@ export default function DetailTodo({ todo }: DetailProp) {
   const [currentTodo, setCurrentTodo] = useState<Todo>(todo);
   const router = useRouter();
   const handleClick = () => {
-    router.back();
+    router.push('/');
   };
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { slug } = router.query;
+    ApiHandle.get(`/api/todo/name/${slug}`)
+      .then((res) => {
+        setCurrentTodo(res.data);
+      })
+      .catch((e) => {
+        alert(e.response.data.message);
+        router.push('/');
+      });
+  }, [router.isReady]);
 
   return (
     <div className="w-full h-[100vh] bg-white text-black justify-center items-center flex">
@@ -30,15 +44,3 @@ export default function DetailTodo({ todo }: DetailProp) {
     </div>
   );
 }
-
-export const getServerSideProps = async (context: any) => {
-  const prisma = new PrismaClient();
-  const todo = await prisma.todo.findUnique({
-    where: { name: context.query.slug },
-  });
-  return {
-    props: {
-      todo,
-    } as DetailProp,
-  };
-};
