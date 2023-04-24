@@ -19,6 +19,11 @@ export interface AddTodoProps {
   setCheckUpdate: Dispatch<SetStateAction<boolean>>;
 }
 
+export interface Assignee {
+  userId: number;
+  todoId: number;
+}
+
 export interface PanigationProps {
   totalPages: number;
   currentPage: number;

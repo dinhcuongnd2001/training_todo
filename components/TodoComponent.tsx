@@ -8,6 +8,7 @@ import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import ApiHandle from '../service';
 import Link from 'next/link';
 import { formatDate } from '@/utils';
+
 export interface TodoProps {
   num: number;
   todo: Todo;
@@ -15,6 +16,9 @@ export interface TodoProps {
 }
 
 function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
+  const dispatch = useAppDispatch();
+
+  // state
   const [showUpdate, setShowUpdate] = useState<boolean>(false);
   const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
   const [showUpdateDate, setShowUpdateDate] = useState<boolean>(false);
@@ -22,13 +26,18 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const [textUpdateScore, setTextUpdateScore] = useState<string>(todo.score);
   const [textUpdateDueDate, setTextUpdateDueDate] = useState<string>(todo.dueDate);
   const [open, setOpen] = useState<boolean>(false);
+  const [openAddAssignee, setOpenAddAssignee] = useState<boolean>(false);
+
+  // ref
   const inputUpdateRef = useRef<HTMLInputElement>(null);
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const inputUpdateDateRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
-  const dispatch = useAppDispatch();
+
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
+
+  // handle action
   const handleOpen = (): void => setOpen(true);
 
   const handleClickIconUpdate = (): void => {
@@ -118,6 +127,8 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
     }
   };
 
+  // side effect
+
   useEffect(() => {
     inputUpdateRef.current?.focus();
   }, [showUpdate]);
@@ -146,7 +157,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
 
   return (
     <>
-      <tr className="relative h-[20px]">
+      <tr className="relative h-[20px] ">
         <td>{num}</td>
         {showUpdate ? (
           <td className="w-[200px] mb-1 p-2 flex justify-start">
@@ -243,6 +254,18 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
             </div>
           </td>
         )}
+
+        {/* Assignee */}
+        <td className="group h-[50px]">
+          <button
+            onClick={() => {
+              setOpenAddAssignee(true);
+            }}
+            className="p-2 bg-red-600 text-white hover:opacity-80"
+          >
+            UPDATE
+          </button>
+        </td>
       </tr>
 
       <tr className="relative">

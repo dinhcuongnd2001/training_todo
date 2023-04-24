@@ -4,7 +4,6 @@ import { ApiResponse, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/in
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
 import { checkAuth, checkUnique } from '@/utils/middleware';
-import { PayloadToken } from '@/utils/auth.util';
 
 const prisma = new PrismaClient();
 
@@ -14,9 +13,17 @@ const getDataFromDB = async (search: string, page: number, id: number, order: st
   const listTodo = await prisma.todo.findMany({
     where: {
       name: { contains: search, mode: 'insensitive' },
-      authorId: id,
       ...statusCondition,
+      OR: [
+        {
+          authorId: id,
+        },
+        {
+          assignees_todo: { some: { userId: id } },
+        },
+      ],
     },
+
     orderBy: [
       {
         dueDate: order === 'asc' ? 'asc' : 'desc',
@@ -32,8 +39,15 @@ const getDataFromDB = async (search: string, page: number, id: number, order: st
   const total = await prisma.todo.count({
     where: {
       name: { contains: search, mode: 'insensitive' },
-      authorId: id,
       ...statusCondition,
+      OR: [
+        {
+          authorId: id,
+        },
+        {
+          assignees_todo: { some: { userId: id } },
+        },
+      ],
     },
     orderBy: [
       {

@@ -24,6 +24,7 @@ model User {
   name  String
   password String
   todos Todo[]
+  assignees_todo Assignee_Todo[]
 }
 
 model Todo {
@@ -35,5 +36,13 @@ model Todo {
   dueDate String
   author User @relation(fields: [authorId], references: [id])
   authorId  Int
+  assignees_todo Assignee_Todo[]
 }
-  
+
+model Assignee_Todo {
+  user User @relation(fields: [userId], references: [id])
+  userId Int
+  todo Todo @relation(fields: [todoId], references: [id])
+  todoId Int
+  @@unique([userId, todoId])
+}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Status } from '@/constants';
 import { Todo } from '@/interfaces';
-import { useAppDispatch, useAppSelector } from '@/hooks/common';
+import { useAppSelector } from '@/hooks/common';
 import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';

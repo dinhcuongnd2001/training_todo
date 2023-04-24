@@ -6,8 +6,10 @@ import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
 import { useRouter } from 'next/router';
+import { fetchUser } from '@/redux/user.slice';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
+
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>();
@@ -77,6 +79,14 @@ export default function Home() {
       });
   }, [router.isReady, status, order, search, page, checkUpdate]);
 
+  useEffect(() => {
+    ApiHandle.get('/api/user')
+      .then((res) => {
+        dispatch(fetchUser(res.data));
+      })
+      .catch((e) => alert(e));
+  }, []);
+
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
   const changeSort = (typeOrder: string) => {
@@ -88,6 +98,7 @@ export default function Home() {
       },
     });
   };
+
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
       <div className="mb-4 flex items-center">
@@ -137,7 +148,7 @@ export default function Home() {
       </div>
 
       <>
-        <table className="w-[1100px] min-h-[145px] text-left border border-solid border-[#333]">
+        <table className="w-[1300px] min-h-[145px] text-left border border-solid border-[#333]">
           <thead>
             <tr>
               <th className="w-[50px]">#</th>
@@ -145,6 +156,7 @@ export default function Home() {
               <th className="w-[300px]">Score</th>
               <th className="w-[150px]">Status</th>
               <th className="w-[200px]">Due Date</th>
+              <th className="w-[200px]">Assignee</th>
             </tr>
           </thead>
 
