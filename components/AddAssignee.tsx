@@ -22,8 +22,8 @@ interface ListUser {
 function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeProps) {
   const listUser = useAppSelector((state) => state.users.users);
   const [assignees, setAssignees] = useState<ListAssignee[]>();
-  const [userNotInTodo, setUserNotInTodo] = useState<ListAssignee[]>();
-  const [assignee, setAssignee] = useState<Assignee>();
+  const [userNotInTodo, setUserNotInTodo] = useState<ListUser[]>();
+  const [assignee, setAssignee] = useState<Assignee>({ todoId: -1, userId: -1 });
   const [checkRender, setCheckRender] = useState<Boolean>(false);
 
   useEffect(() => {
@@ -40,24 +40,31 @@ function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeP
         setUserNotInTodo(res.data);
       })
       .catch((e) => console.log('e ::', e));
-  }, []);
+  }, [assignees]);
 
   const handleAddAssignee = () => {
-    ApiHandle.create(`/api/assignee`, assignee)
-      .then((res) => {
-        alert('Thêm Thành Công');
-        setCheckRender(!checkRender);
-      })
-      .catch((e) => console.log('e ::', e));
+    if (assignee.todoId < 0 && assignee.userId < 0) {
+      alert('Assignee Invalid');
+    } else {
+      ApiHandle.create(`/api/assignee`, assignee)
+        .then((res) => {
+          setCheckRender(!checkRender);
+          setAssignee({ todoId: -1, userId: -1 });
+        })
+        .catch((e) => console.log('e ::', e));
+    }
   };
 
   const handleRemove = (userId: number, todoId: number) => {
-    ApiHandle.delete(`/api/assignee/?userId=${userId}&todoIs=${todoId}`)
+    ApiHandle.delete(`/api/assignee/?userId=${userId}&todoId=${todoId}`)
       .then((res) => {
-        alert('Xóa Thành Công');
         setCheckRender(!checkRender);
+        alert('remove done');
       })
-      .catch((e) => console.log('e ::', e));
+      .catch((e) => {
+        alert('remove false');
+        console.log('e ::', e);
+      });
   };
   return (
     <Modal
@@ -119,11 +126,13 @@ function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeP
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
             <option className="hidden">Select An Assignee</option>
-            {userNotInTodo?.map((x, index) => (
-              <option key={index} value={x.id}>
-                {x.name} - {x.email}
-              </option>
-            ))}
+            {userNotInTodo
+              ? userNotInTodo.map((x, index) => (
+                  <option key={index} value={x.id}>
+                    {x.name} - {x.email}
+                  </option>
+                ))
+              : null}
           </select>
           <button onClick={handleAddAssignee} className="absolute bottom-0 right-0">
             Save

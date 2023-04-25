@@ -50,7 +50,10 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
       .then((res) => {
         checkUpdate((pre) => !pre);
       })
-      .catch((e) => console.log('error when remove ::', e));
+      .catch((e) => {
+        console.log('e ::', e.response.data);
+        alert(e.response.data);
+      });
   };
 
   const handleCheckUpdateScoreOrName = (e: React.KeyboardEvent<HTMLInputElement>, field: string): void => {

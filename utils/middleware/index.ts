@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 interface payloadData {
   id: number;
 }
+
 const prisma = new PrismaClient();
 
 export const checkAuth = async (req: AuthenticatedRequest, res: NextApiResponse, next: any) => {
@@ -16,7 +17,7 @@ export const checkAuth = async (req: AuthenticatedRequest, res: NextApiResponse,
     req.authorId = data.id;
     next();
   } catch (error) {
-    next({ message: 'token expired' });
+    next({ message: 'token expired', statusCode: 401 });
   }
 };
 
@@ -29,4 +30,25 @@ export const checkUnique = async (req: CreateTodoRequest, res: NextApiResponse, 
   });
   if (todo) throw new Error('Todo Name has been existen');
   next();
+};
+
+export const checkPermission = async (req: AuthenticatedRequest, res: NextApiResponse, next: any) => {
+  const id = Number(req.query.id);
+  try {
+    const todo = await prisma.todo.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    console.log('todo', todo);
+
+    if (!todo || todo.authorId !== req.authorId) {
+      return next({ message: 'Permission Denied', statusCode: 403 });
+    }
+    req.role = 'USER';
+    return next();
+  } catch (error) {
+    return next({ message: 'Not Found', statusCode: 400 });
+  }
 };

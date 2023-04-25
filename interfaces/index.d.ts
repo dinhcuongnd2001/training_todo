@@ -2,6 +2,7 @@ import { Status } from '@/constants';
 import { TodoStatus } from '@prisma/client';
 import { Dispatch, SetStateAction } from 'react';
 import { NextApiRequest } from 'next/types';
+import Error from 'next/error';
 export interface Todo {
   id?: number;
   name: string;
@@ -36,6 +37,8 @@ export interface ParamsForGetApi {
   search?: string;
   page: string;
   order: string;
+  slug?: string;
+  id?: string;
 }
 
 export interface ApiResponse {
@@ -60,8 +63,14 @@ export interface AuthenticatedRequest extends NextApiRequest {
     token?: string;
   };
   authorId: number;
+  role: string;
 }
 
 export interface CreateTodoRequest extends AuthenticatedRequest {
   body: Omit<Todo, 'authorId'>;
+}
+
+export interface DNC_Error extends Error {
+  message: string;
+  statusCode: number;
 }

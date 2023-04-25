@@ -1,8 +1,8 @@
 import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Todo } from '@/interfaces';
+import { AuthenticatedRequest, Todo, DNC_Error } from '@/interfaces';
 import { PrismaClient } from '@prisma/client';
-import { checkAuth } from '@/utils/middleware';
+import { checkAuth, checkPermission } from '@/utils/middleware';
 const prisma = new PrismaClient();
 
 const handleUpdate = async (idTodo: number, data: Todo) => {
@@ -29,25 +29,33 @@ interface TodoChangeRequest extends NextApiRequest {
 }
 
 const handler = nc<NextApiRequest, NextApiResponse>({
-  onError: (err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).end('Something broke!');
+  onError: (err: DNC_Error, req, res, next) => {
+    const { message, statusCode } = err;
+
+    console.log('log truowcs');
+
+    return message && statusCode ? res.status(statusCode).json(message) : res.status(500).json('Something broken');
   },
   onNoMatch: (req, res) => {
-    res.status(404).end('Page is not found');
+    return res.status(404).end('Page is not found');
   },
 });
 
-handler.put(checkAuth, async (req: TodoChangeRequest, res: NextApiResponse<Todo>, next) => {
+handler.put(checkAuth, async (req: NextApiRequest, res: NextApiResponse<Todo>, next) => {
   const id = Number(req.query.id);
   const newTodo = await handleUpdate(id, req.body);
   res.status(200).json(newTodo);
 });
 
-handler.delete(checkAuth, async (req, res: NextApiResponse<Todo>, next) => {
+handler.delete(checkAuth, checkPermission, async (req: AuthenticatedRequest, res: NextApiResponse, next) => {
+  console.log('log sau');
+
   const id = Number(req.query.id);
-  const result = await handleRemove(id);
-  res.status(200).json(result);
+  // if (req.role !== 'USER') {
+  const data = await handleRemove(id);
+  if (data) res.status(200).json({ message: 'success' });
+  else res.status(409).json({ message: 'Error' });
+  // }
 });
 
 export default handler;

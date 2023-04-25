@@ -11,3 +11,8 @@ yarn dev
 # or
 pnpm dev
 ```
+
+checkPermission
+checkdelete
+
+delete assignee
