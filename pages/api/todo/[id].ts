@@ -31,9 +31,6 @@ interface TodoChangeRequest extends NextApiRequest {
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err: DNC_Error, req, res, next) => {
     const { message, statusCode } = err;
-
-    console.log('log truowcs');
-
     return message && statusCode ? res.status(statusCode).json(message) : res.status(500).json('Something broken');
   },
   onNoMatch: (req, res) => {
@@ -48,14 +45,10 @@ handler.put(checkAuth, async (req: NextApiRequest, res: NextApiResponse<Todo>, n
 });
 
 handler.delete(checkAuth, checkPermission, async (req: AuthenticatedRequest, res: NextApiResponse, next) => {
-  console.log('log sau');
-
   const id = Number(req.query.id);
-  // if (req.role !== 'USER') {
   const data = await handleRemove(id);
   if (data) res.status(200).json({ message: 'success' });
   else res.status(409).json({ message: 'Error' });
-  // }
 });
 
 export default handler;

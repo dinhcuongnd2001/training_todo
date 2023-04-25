@@ -1,6 +1,6 @@
 import { PayloadToken } from './../auth.util';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AuthenticatedRequest, CreateTodoRequest } from '@/interfaces';
+import { AuthenticatedRequest, CheckAssigneeRequest, CreateTodoRequest } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 interface payloadData {
@@ -46,9 +46,30 @@ export const checkPermission = async (req: AuthenticatedRequest, res: NextApiRes
     if (!todo || todo.authorId !== req.authorId) {
       return next({ message: 'Permission Denied', statusCode: 403 });
     }
-    req.role = 'USER';
     return next();
   } catch (error) {
     return next({ message: 'Not Found', statusCode: 400 });
+  }
+};
+
+export const checkAssignee = async (req: CheckAssigneeRequest, res: NextApiResponse, next: any) => {
+  const userId = req.authorId;
+  const nameTodo = req.query.slug;
+  try {
+    const todo = await prisma.todo.findMany({
+      where: {
+        OR: [
+          { authorId: userId },
+          {
+            AND: [{ name: nameTodo }, { assignees_todo: { some: { userId: userId } } }],
+          },
+        ],
+      },
+    });
+    if (!todo.length) return next({ message: 'permission denied', statusCode: '403' });
+    req.todo = todo[0];
+    next();
+  } catch (err) {
+    return next({ message: 'Something went wrong', statusCode: 500 });
   }
 };

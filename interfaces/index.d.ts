@@ -70,6 +70,10 @@ export interface CreateTodoRequest extends AuthenticatedRequest {
   body: Omit<Todo, 'authorId'>;
 }
 
+export interface CheckAssigneeRequest extends AuthenticatedRequest {
+  todo: Todo;
+}
+
 export interface DNC_Error extends Error {
   message: string;
   statusCode: number;
