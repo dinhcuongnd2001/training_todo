@@ -11,6 +11,15 @@ const createData = async (data: Assignee) => {
   return res;
 };
 
+// const deleteAssignee = async (userId: number, todoId: number) => {
+//   const res = await prisma.assignee_Todo.delete({
+//     where : {
+//       todoId : todoId,
+
+//     }
+//   })
+// };
+
 interface AssgineeRequest extends NextApiRequest {
   body: Assignee;
 }
@@ -26,6 +35,11 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 });
 
 handler.post(async (req: AssgineeRequest, res: NextApiResponse, next) => {
+  const newAssignee = await createData(req.body);
+  res.status(201).json(newAssignee);
+});
+
+handler.delete(async (req: AssgineeRequest, res: NextApiResponse, next) => {
   const newAssignee = await createData(req.body);
   res.status(201).json(newAssignee);
 });

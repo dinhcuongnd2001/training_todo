@@ -8,6 +8,7 @@ import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import ApiHandle from '../service';
 import Link from 'next/link';
 import { formatDate } from '@/utils';
+import AddAssignee from './AddAssignee';
 
 export interface TodoProps {
   num: number;
@@ -267,7 +268,9 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
           </button>
         </td>
       </tr>
-
+      {openAddAssignee ? (
+        <AddAssignee todo={todo} openAddAssignee={openAddAssignee} setOpenAddAssignee={setOpenAddAssignee} />
+      ) : null}
       <tr className="relative">
         {open ? (
           <td ref={tdRef} className="w-[200px] bg-[#333]/90 absolute top-[-15px]  z-10 text-white">
