@@ -1,4 +1,3 @@
-import { useAppSelector } from '@/hooks/common';
 import Modal from '@mui/material/Modal';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ApiHandle from '../service';
@@ -20,7 +19,6 @@ interface ListUser {
   id: number;
 }
 function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeProps) {
-  const listUser = useAppSelector((state) => state.users.users);
   const [assignees, setAssignees] = useState<ListAssignee[]>();
   const [userNotInTodo, setUserNotInTodo] = useState<ListUser[]>();
   const [assignee, setAssignee] = useState<Assignee>({ todoId: -1, userId: -1 });
