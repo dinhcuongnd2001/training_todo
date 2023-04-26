@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   users: [],
-  currId: String,
+  currId: '',
 };
 
 export const usersSlice = createSlice({

@@ -1,7 +1,7 @@
-import { useState, useEffect, useLayoutEffect, ChangeEvent, useRef } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
-import Panigation from '@/components/pagination';
+
 import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
@@ -9,8 +9,11 @@ import { useRouter } from 'next/router';
 import { fetchCurrId, fetchUser } from '@/redux/user.slice';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
-import AddAssignee from '@/components/AddAssignee';
-
+import Pagination from '@/components/Pagination';
+import { classNames } from '@/utils';
+import Image from 'next/image';
+import down from '../public/image/down-arrow.png';
+import up from '../public/image/upload.png';
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>();
@@ -66,6 +69,16 @@ export default function Home() {
     router.push('/auth/login');
   };
 
+  const changeSort = (typeOrder: string) => {
+    const { order, page, ...rest } = router.query;
+    router.push({
+      query: {
+        order: typeOrder,
+        ...rest,
+      },
+    });
+  };
+
   useEffect(() => {
     if (!router.isReady) return;
     if (openModal) return;
@@ -91,68 +104,79 @@ export default function Home() {
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
-  const changeSort = (typeOrder: string) => {
-    const { order, page, ...rest } = router.query;
-    router.push({
-      query: {
-        order: typeOrder,
-        ...rest,
-      },
-    });
-  };
+
+  const HandleChangeSort = (check: boolean) => {};
 
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
-      <div className="mb-4 flex items-center">
-        <div>
-          {listStatus.map((x, index) => (
+      <div className="mb-4 flex items-center flex-wrap">
+        <div className="w-[1300px] mb-2 flex justify-between">
+          <div>
+            {listStatus.map((x, index) => (
+              <button
+                onClick={() => handleChangeStatus(x)}
+                key={index}
+                className={classNames(
+                  'p-2 mr-4 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px]',
+                  status === x ? 'bg-red-400 ' : ' bg-gray-50 dark:bg-gray-700 dark:text-gray-400'
+                )}
+              >
+                {x}
+              </button>
+            ))}
             <button
-              onClick={() => handleChangeStatus(x)}
-              key={index}
-              className="p-2 mx-2 text-white rounded hover:cursor-pointer hover:opacity-80"
-              style={status == x ? { background: 'red' } : { background: '#333' }}
+              onClick={() => changeSort('desc')}
+              className="p-2 mr-4 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400"
             >
-              {x}
+              desc
             </button>
-          ))}
-        </div>
 
-        <div>
-          <input
-            placeholder="Input to search"
-            className="p-1 ml-4 border border-[#333] "
-            type="text"
-            value={filter}
-            onChange={handleChangeFilter}
-          />
-        </div>
+            <button
+              onClick={() => changeSort('asc')}
+              className="p-2 mr-4 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400"
+            >
+              asc
+            </button>
+          </div>
 
-        <div className="flex items-center">
-          <button onClick={handleOpenModal} className="p-3 bg-red-500 text-white ml-5">
-            +
-          </button>
-        </div>
-
-        <div className="flex items-center">
-          <button onClick={() => changeSort('asc')} className="p-3 bg-red-500 text-white ml-5">
-            asc
-          </button>
+          {/* logout */}
+          <div>
+            <button
+              className="p-2 mr-4 text-sm uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400 text-gray-800"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center">
-          <button onClick={() => changeSort('desc')} className="p-3 bg-red-500 text-white ml-5">
-            desc
-          </button>
-        </div>
+          {/* search */}
+          <div className="w-[370px] mb-2">
+            <input
+              className="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Search"
+              type="text"
+              value={filter}
+              onChange={handleChangeFilter}
+            />
+          </div>
 
-        <button className="ml-5 bg-red-500 p-3 text-white" onClick={handleLogout}>
-          Logout
-        </button>
+          {/* add */}
+          <div className="flex">
+            <button
+              onClick={handleOpenModal}
+              className="p-2 ml-4 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400"
+            >
+              +
+            </button>
+          </div>
+        </div>
       </div>
 
       <>
         <table className="w-[1300px] min-h-[145px] text-left border border-solid border-[#333]">
-          <thead>
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 h-[50px]">
             <tr>
               <th className="w-[50px]">#</th>
               <th className="w-[400px]">Name</th>
@@ -183,11 +207,13 @@ export default function Home() {
           )}
         </table>
 
+        {/* Panigation */}
+
         <div className="mt-5">
-          <p>Total Pages : {totalPages}</p>
-          <p>Todos Per Page: {todosPerPage}</p>
+          <p className=" text-sm font-medium text-gray-500">Total Pages : {totalPages}</p>
+          <p className=" text-sm font-medium text-gray-500">Todos Per Page: {todosPerPage}</p>
         </div>
-        <Panigation
+        <Pagination
           totalPages={Number(totalPages)}
           currentPage={+pageFilter}
           numPageShow={numPageShow}

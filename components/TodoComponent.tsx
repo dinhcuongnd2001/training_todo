@@ -118,7 +118,6 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
     if (new Date(e.target.value).getTime() < new Date().getTime()) {
       alert(`The Due Date must be after ${formatDate(new Date().toString())}`);
     } else {
-      // dispatch(changeTodo(newTodo));
       ApiHandle.update(`/api/todo/${todo.id}`, newTodo)
         .then((res) => {
           // console.log('res after call API ::', res.data);
@@ -134,11 +133,9 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const handleLeaveTask = (userId: number, todoId: number) => {
     ApiHandle.delete(`/api/assignee/?userId=${userId}&todoId=${todoId}`)
       .then((res) => {
-        alert('remove done');
         checkUpdate((pre) => !pre);
       })
       .catch((e) => {
-        alert('remove false');
         console.log('e ::', e);
       });
   };
@@ -173,7 +170,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
 
   return (
     <>
-      <tr className="relative h-[20px] ">
+      <tr className="relative h-[20px] bg-white border-b dark:border-gray-700">
         <td>{num}</td>
         {showUpdate ? (
           <td className="w-[200px] mb-1 p-2 flex justify-start">
@@ -278,7 +275,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
               onClick={() => {
                 setOpenAddAssignee(true);
               }}
-              className="p-2 bg-red-600 text-white hover:opacity-80"
+              className="mt-2 text-white bg-gray-800 hover:bg-gray-900 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
             >
               Change Assignee
             </button>
@@ -299,7 +296,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
       {openAddAssignee ? (
         <AddAssignee todo={todo} openAddAssignee={openAddAssignee} setOpenAddAssignee={setOpenAddAssignee} />
       ) : null}
-      <tr className="relative">
+      <tr className="relative bg-white border-b dark:border-gray-700 h-0">
         {open ? (
           <td ref={tdRef} className="w-[200px] bg-[#333]/90 absolute top-[-15px]  z-10 text-white">
             {getStatus.map((x, index) => (

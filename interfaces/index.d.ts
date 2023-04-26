@@ -26,7 +26,7 @@ export interface Assignee {
   todoId: number;
 }
 
-export interface PanigationProps {
+export interface PaginationProps {
   totalPages: number;
   currentPage: number;
   numPageShow: number;
@@ -46,6 +46,12 @@ export interface RegisterDataType {
   name: string;
   email: string;
   password: string;
+}
+
+export interface ApiResponse {
+  totalPages?: number;
+  listTodo: Todo[];
+  currId?: number;
 }
 
 export interface LoginDataType {

@@ -50,3 +50,7 @@ export const handleGetTodo = (
   };
   return data;
 };
+
+export function classNames(...classes: string[]) {
+  return classes.filter(Boolean).join(' ');
+}

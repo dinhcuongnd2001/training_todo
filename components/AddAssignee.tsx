@@ -59,10 +59,8 @@ function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeP
     ApiHandle.delete(`/api/assignee/?userId=${userId}&todoId=${todoId}`)
       .then((res) => {
         setCheckRender(!checkRender);
-        alert('remove done');
       })
       .catch((e) => {
-        alert('remove false');
         console.log('e ::', e);
       });
   };

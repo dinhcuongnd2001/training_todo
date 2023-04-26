@@ -1,15 +1,9 @@
-import nc, { NextHandler } from 'next-connect';
+import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
+import { ApiResponse, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
 import { checkAuth, checkUnique } from '@/utils/middleware';
-
-interface ApiResponse {
-  totalPages?: number;
-  listTodo: Todo[];
-  currId?: number;
-}
 
 const prisma = new PrismaClient();
 
