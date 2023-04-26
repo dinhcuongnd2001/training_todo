@@ -6,12 +6,18 @@ import { checkAuth, checkPermission } from '@/utils/middleware';
 const prisma = new PrismaClient();
 
 const handleUpdate = async (idTodo: number, data: Todo) => {
-  const newTodo = await prisma.todo.update({
-    where: { id: idTodo },
-    data: {
-      ...data,
-    },
-  });
+  const { id, role, ...restData } = data;
+  let newTodo;
+  try {
+    newTodo = await prisma.todo.update({
+      where: { id: idTodo },
+      data: {
+        ...restData,
+      },
+    });
+  } catch (error) {
+    throw new Error('Server Update Error');
+  }
   return newTodo;
 };
 
@@ -24,14 +30,10 @@ const handleRemove = async (id: number) => {
   return res;
 };
 
-interface TodoChangeRequest extends NextApiRequest {
-  body: Todo;
-}
-
 const handler = nc<NextApiRequest, NextApiResponse>({
   onError: (err: DNC_Error, req, res, next) => {
     const { message, statusCode } = err;
-    return message && statusCode ? res.status(statusCode).json(message) : res.status(500).json('Something broken');
+    return message && statusCode ? res.status(statusCode).json(message) : res.status(500).json(err.message);
   },
   onNoMatch: (req, res) => {
     return res.status(404).end('Page is not found');
