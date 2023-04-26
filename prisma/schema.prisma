@@ -24,6 +24,7 @@ model User {
   name  String
   password String
   todos Todo[]
+  assignees_todo Assignee_Todo[]
 }
 
 model Todo {
@@ -33,7 +34,15 @@ model Todo {
   desc String 
   status TodoStatus
   dueDate String
-  author User @relation(fields: [authorId], references: [id])
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade) 
   authorId  Int
+  assignees_todo Assignee_Todo[]
 }
-  
+
+model Assignee_Todo {
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  todoId Int
+  @@unique([userId, todoId])
+}

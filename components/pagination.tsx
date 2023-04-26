@@ -1,8 +1,8 @@
-import { PanigationProps } from '@/interfaces';
+import { PaginationProps } from '@/interfaces';
 import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/router';
 
-export default function Panigation({ totalPages, currentPage, numPageShow, nearPage }: PanigationProps) {
+export default function Pagination({ totalPages, currentPage, numPageShow, nearPage }: PaginationProps) {
   const router = useRouter();
 
   const handlePrevious = () => {
@@ -21,7 +21,7 @@ export default function Panigation({ totalPages, currentPage, numPageShow, nearP
   };
 
   return (
-    <nav className="w-[900px] mt-5 flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
+    <nav className="w-[1300px] mt-5 flex items-center justify-between border-t border-gray-200 px-4 sm:px-0">
       <div className="-mt-px flex w-0 flex-1">
         <button
           disabled={currentPage == 1 || totalPages == 0 ? true : false}
@@ -41,7 +41,7 @@ export default function Panigation({ totalPages, currentPage, numPageShow, nearP
               onClick={() => handleSelectPage(x)}
               className={
                 currentPage == x
-                  ? 'items-center border-t-2 border-indigo-500 px-4 pt-4 text-sm font-medium text-indigo-600'
+                  ? 'items-center border-t-2 border-gray-300 px-4 pt-4 text-sm font-medium text-gray-500'
                   : 'cursor-pointer inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500'
               }
               aria-current="page"

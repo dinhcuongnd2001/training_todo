@@ -1,10 +1,9 @@
-import nc, { NextHandler } from 'next-connect';
+import nc from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ApiResponse, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
 import { checkAuth, checkUnique } from '@/utils/middleware';
-import { PayloadToken } from '@/utils/auth.util';
 
 const prisma = new PrismaClient();
 
@@ -14,9 +13,17 @@ const getDataFromDB = async (search: string, page: number, id: number, order: st
   const listTodo = await prisma.todo.findMany({
     where: {
       name: { contains: search, mode: 'insensitive' },
-      authorId: id,
       ...statusCondition,
+      OR: [
+        {
+          authorId: id,
+        },
+        {
+          assignees_todo: { some: { userId: id } },
+        },
+      ],
     },
+
     orderBy: [
       {
         dueDate: order === 'asc' ? 'asc' : 'desc',
@@ -32,8 +39,15 @@ const getDataFromDB = async (search: string, page: number, id: number, order: st
   const total = await prisma.todo.count({
     where: {
       name: { contains: search, mode: 'insensitive' },
-      authorId: id,
       ...statusCondition,
+      OR: [
+        {
+          authorId: id,
+        },
+        {
+          assignees_todo: { some: { userId: id } },
+        },
+      ],
     },
     orderBy: [
       {
@@ -74,7 +88,11 @@ handler.get(checkAuth, async (req: AuthenticatedRequest, res: NextApiResponse<Ap
     newStatus = status as TodoStatus;
   }
   const data = await getDataFromDB(String(search), Number(page), authorId, order, newStatus);
-  res.status(200).json(data);
+  const listTodoWithRole = data.listTodo.map((x) => {
+    if (x.authorId === authorId) return { ...x, role: 'AUTHOR' };
+    else return { ...x, role: 'ASSIGNEE' };
+  });
+  res.status(200).json({ ...data, listTodo: listTodoWithRole, currId: req.authorId });
 });
 
 handler.post(checkAuth, checkUnique, async (req: CreateTodoRequest, res: NextApiResponse<Todo>, next) => {

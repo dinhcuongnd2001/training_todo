@@ -2,6 +2,7 @@ import { Status } from '@/constants';
 import { TodoStatus } from '@prisma/client';
 import { Dispatch, SetStateAction } from 'react';
 import { NextApiRequest } from 'next/types';
+import Error from 'next/error';
 export interface Todo {
   id?: number;
   name: string;
@@ -10,6 +11,7 @@ export interface Todo {
   status: TodoStatus;
   dueDate: string;
   authorId: number;
+  role?: string;
 }
 
 export interface AddTodoProps {
@@ -19,7 +21,12 @@ export interface AddTodoProps {
   setCheckUpdate: Dispatch<SetStateAction<boolean>>;
 }
 
-export interface PanigationProps {
+export interface Assignee {
+  userId: number;
+  todoId: number;
+}
+
+export interface PaginationProps {
   totalPages: number;
   currentPage: number;
   numPageShow: number;
@@ -31,17 +38,20 @@ export interface ParamsForGetApi {
   search?: string;
   page: string;
   order: string;
-}
-
-export interface ApiResponse {
-  totalPages?: number;
-  listTodo: Todo[];
+  slug?: string;
+  id?: string;
 }
 
 export interface RegisterDataType {
   name: string;
   email: string;
   password: string;
+}
+
+export interface ApiResponse {
+  totalPages?: number;
+  listTodo: Todo[];
+  currId?: number;
 }
 
 export interface LoginDataType {
@@ -55,8 +65,18 @@ export interface AuthenticatedRequest extends NextApiRequest {
     token?: string;
   };
   authorId: number;
+  role: string;
 }
 
 export interface CreateTodoRequest extends AuthenticatedRequest {
   body: Omit<Todo, 'authorId'>;
+}
+
+export interface CheckAssigneeRequest extends AuthenticatedRequest {
+  todo: Todo;
+}
+
+export interface DNC_Error extends Error {
+  message: string;
+  statusCode: number;
 }

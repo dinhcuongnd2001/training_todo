@@ -1,19 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { Todo } from '@/interfaces';
-// Define a type for the slice state
 interface TodoListState {
   list: Todo[];
 }
 
-// Define the initial state using that type
 const initialState: TodoListState = {
   list: [],
 };
 
 export const todoListSlice = createSlice({
   name: 'todoList',
-  // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
     addTodo: (state, action: PayloadAction<Todo>) => {

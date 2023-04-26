@@ -28,7 +28,7 @@ const handleLogin = async (data: LoginDataType) => {
     });
 
   const token = generationToken({ id: user.id });
-  return token;
+  return { userId: user.id, token };
 };
 
 const handler = nc<NextApiRequest, NextApiResponse>({
@@ -39,18 +39,17 @@ const handler = nc<NextApiRequest, NextApiResponse>({
 
 handler.post(async (req, res: NextApiResponse, next) => {
   try {
-    const token = await handleLogin(req.body);
+    const { userId, token } = await handleLogin(req.body);
     res.setHeader(
       'Set-Cookie',
       cookie.serialize('token', token, {
-        // httpOnly: true,
         path: '/',
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
       })
     );
     res.status(200).json({ message: 'success', access_token: token });
   } catch (error: any) {
-    console.log('error ::', error);
+    // console.log('error ::', error);
     res.status(401).send({ message: error.props.title });
   }
 });

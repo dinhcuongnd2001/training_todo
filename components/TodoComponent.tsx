@@ -3,11 +3,13 @@ import CreateIcon from '@mui/icons-material/Create';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
-import { useAppDispatch } from '@/hooks/common';
+import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import ApiHandle from '../service';
 import Link from 'next/link';
-import { formatDate } from '@/utils';
+import { classNames, formatDate } from '@/utils';
+import AddAssignee from './AddAssignee';
+
 export interface TodoProps {
   num: number;
   todo: Todo;
@@ -15,6 +17,9 @@ export interface TodoProps {
 }
 
 function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
+  const dispatch = useAppDispatch();
+  const currUserId = useAppSelector((state) => state.users.currId);
+  // state
   const [showUpdate, setShowUpdate] = useState<boolean>(false);
   const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
   const [showUpdateDate, setShowUpdateDate] = useState<boolean>(false);
@@ -22,13 +27,18 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const [textUpdateScore, setTextUpdateScore] = useState<string>(todo.score);
   const [textUpdateDueDate, setTextUpdateDueDate] = useState<string>(todo.dueDate);
   const [open, setOpen] = useState<boolean>(false);
+  const [openAddAssignee, setOpenAddAssignee] = useState<boolean>(false);
+
+  // ref
   const inputUpdateRef = useRef<HTMLInputElement>(null);
   const inputUpdateScoreRef = useRef<HTMLInputElement>(null);
   const inputUpdateDateRef = useRef<HTMLInputElement>(null);
   const divRef = useRef<HTMLDivElement>(null);
   const tdRef = useRef<HTMLTableCellElement>(null);
-  const dispatch = useAppDispatch();
+
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
+
+  // handle action
   const handleOpen = (): void => setOpen(true);
 
   const handleClickIconUpdate = (): void => {
@@ -40,7 +50,10 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
       .then((res) => {
         checkUpdate((pre) => !pre);
       })
-      .catch((e) => console.log('error when remove ::', e));
+      .catch((e) => {
+        console.log('e ::', e.response.data);
+        alert(e.response.data);
+      });
   };
 
   const handleCheckUpdateScoreOrName = (e: React.KeyboardEvent<HTMLInputElement>, field: string): void => {
@@ -105,7 +118,6 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
     if (new Date(e.target.value).getTime() < new Date().getTime()) {
       alert(`The Due Date must be after ${formatDate(new Date().toString())}`);
     } else {
-      // dispatch(changeTodo(newTodo));
       ApiHandle.update(`/api/todo/${todo.id}`, newTodo)
         .then((res) => {
           // console.log('res after call API ::', res.data);
@@ -117,6 +129,18 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
         });
     }
   };
+
+  const handleLeaveTask = (userId: number, todoId: number) => {
+    ApiHandle.delete(`/api/assignee/?userId=${userId}&todoId=${todoId}`)
+      .then((res) => {
+        checkUpdate((pre) => !pre);
+      })
+      .catch((e) => {
+        console.log('e ::', e);
+      });
+  };
+
+  // side effect
 
   useEffect(() => {
     inputUpdateRef.current?.focus();
@@ -146,7 +170,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
 
   return (
     <>
-      <tr className="relative h-[20px]">
+      <tr className={classNames('relative h-[20px]')}>
         <td>{num}</td>
         {showUpdate ? (
           <td className="w-[200px] mb-1 p-2 flex justify-start">
@@ -168,7 +192,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
             <div
               ref={divRef}
               onClick={() => handleOpen()}
-              className="w-4 h-4 bg-red-500 inline-block mr-10 cursor-pointer"
+              className="w-4 h-4 bg-red-400 inline-block mr-10 cursor-pointer"
             ></div>
             <Link
               href={{ pathname: '/todo/[slug]', query: { slug: todo.name } }}
@@ -243,11 +267,38 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
             </div>
           </td>
         )}
-      </tr>
 
-      <tr className="relative">
+        {/* Assignee */}
+        {todo.role === 'AUTHOR' ? (
+          <td className="group h-[50px]">
+            <button
+              onClick={() => {
+                setOpenAddAssignee(true);
+              }}
+              className="mt-2 text-sm text-gray-400 bg-gray-700 hover:opacity-90 focus:outline-none font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-700  dark:focus:ring-gray-700 dark:border-gray-700"
+            >
+              Change Assignee
+            </button>
+          </td>
+        ) : (
+          <td>
+            <button
+              onClick={() => {
+                handleLeaveTask(Number(currUserId), Number(todo.id));
+              }}
+              className="p-2 bg-red-400 rounded text-sm text-gray-900 hover:opacity-80"
+            >
+              Leave Task
+            </button>
+          </td>
+        )}
+      </tr>
+      {openAddAssignee ? (
+        <AddAssignee todo={todo} openAddAssignee={openAddAssignee} setOpenAddAssignee={setOpenAddAssignee} />
+      ) : null}
+      <tr className="relative bg-white">
         {open ? (
-          <td ref={tdRef} className="w-[200px] bg-[#333]/90 absolute top-[-15px]  z-10 text-white">
+          <td ref={tdRef} className="w-[200px] bg-gray-700 absolute top-[-15px]  z-10 text-white">
             {getStatus.map((x, index) => (
               <div
                 key={index}
