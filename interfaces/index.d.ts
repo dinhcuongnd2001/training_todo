@@ -11,6 +11,7 @@ export interface Todo {
   status: TodoStatus;
   dueDate: string;
   authorId: number;
+  role?: string;
 }
 
 export interface AddTodoProps {
@@ -39,11 +40,6 @@ export interface ParamsForGetApi {
   order: string;
   slug?: string;
   id?: string;
-}
-
-export interface ApiResponse {
-  totalPages?: number;
-  listTodo: Todo[];
 }
 
 export interface RegisterDataType {

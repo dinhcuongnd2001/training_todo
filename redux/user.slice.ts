@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   users: [],
+  currId: String,
 };
 
 export const usersSlice = createSlice({
@@ -9,11 +10,13 @@ export const usersSlice = createSlice({
   initialState,
   reducers: {
     fetchUser: (state, action) => {
-      console.log('action.payload ::', action.payload);
       state.users = action.payload;
+    },
+    fetchCurrId: (state, action) => {
+      state.currId = action.payload;
     },
   },
 });
 
-export const { fetchUser } = usersSlice.actions;
+export const { fetchUser, fetchCurrId } = usersSlice.actions;
 export default usersSlice.reducer;

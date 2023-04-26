@@ -6,7 +6,7 @@ import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
 import { useRouter } from 'next/router';
-import { fetchUser } from '@/redux/user.slice';
+import { fetchCurrId, fetchUser } from '@/redux/user.slice';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
 import AddAssignee from '@/components/AddAssignee';
@@ -38,7 +38,6 @@ export default function Home() {
     });
   };
 
-  // console.log('order ::', order);
   const handleChangeFilter = (e: ChangeEvent<HTMLInputElement>) => {
     const stringSearch = e.target.value.trim();
     const { search, page, ...rest } = router.query;
@@ -61,6 +60,7 @@ export default function Home() {
   const handleOpenModal = () => {
     setOpenModal(true);
   };
+
   const handleLogout = () => {
     document.cookie = 'token=;path=/';
     router.push('/auth/login');
@@ -74,6 +74,7 @@ export default function Home() {
       .then((res) => {
         setTotalPages(res.data.totalPages);
         dispatch(fetchTodoList(res.data.listTodo));
+        dispatch(fetchCurrId(res.data.currId));
       })
       .catch((e) => {
         router.push('/auth/login');
@@ -115,6 +116,7 @@ export default function Home() {
             </button>
           ))}
         </div>
+
         <div>
           <input
             placeholder="Input to search"
@@ -157,7 +159,7 @@ export default function Home() {
               <th className="w-[300px]">Score</th>
               <th className="w-[150px]">Status</th>
               <th className="w-[200px]">Due Date</th>
-              <th className="w-[200px]">Assignee</th>
+              <th className="w-[200px]">Action</th>
             </tr>
           </thead>
 
@@ -174,7 +176,7 @@ export default function Home() {
               <tr>
                 <td></td>
                 <td>
-                  <p>Không có kết quả</p>
+                  <p>No Result</p>
                 </td>
               </tr>
             </tbody>

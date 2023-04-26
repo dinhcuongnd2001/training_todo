@@ -23,7 +23,7 @@ export default function DetailTodo({ todo }: DetailProp) {
         setCurrentTodo(res.data);
       })
       .catch((e) => {
-        alert(e.response.data.message);
+        alert(e.response.data);
         router.push('/');
       });
   }, [router.isReady]);

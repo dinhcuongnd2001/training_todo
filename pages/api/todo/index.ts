@@ -1,9 +1,15 @@
 import nc, { NextHandler } from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { ApiResponse, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
+import { AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 import { TODO_PER_PAGE } from '@/constants';
 import { checkAuth, checkUnique } from '@/utils/middleware';
+
+interface ApiResponse {
+  totalPages?: number;
+  listTodo: Todo[];
+  currId?: number;
+}
 
 const prisma = new PrismaClient();
 
@@ -88,7 +94,11 @@ handler.get(checkAuth, async (req: AuthenticatedRequest, res: NextApiResponse<Ap
     newStatus = status as TodoStatus;
   }
   const data = await getDataFromDB(String(search), Number(page), authorId, order, newStatus);
-  res.status(200).json(data);
+  const listTodoWithRole = data.listTodo.map((x) => {
+    if (x.authorId === authorId) return { ...x, role: 'AUTHOR' };
+    else return { ...x, role: 'ASSIGNEE' };
+  });
+  res.status(200).json({ ...data, listTodo: listTodoWithRole, currId: req.authorId });
 });
 
 handler.post(checkAuth, checkUnique, async (req: CreateTodoRequest, res: NextApiResponse<Todo>, next) => {

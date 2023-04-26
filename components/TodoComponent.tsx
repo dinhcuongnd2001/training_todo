@@ -3,7 +3,7 @@ import CreateIcon from '@mui/icons-material/Create';
 import ClearIcon from '@mui/icons-material/Clear';
 import { Todo } from '@/interfaces';
 import { Status } from '@/constants';
-import { useAppDispatch } from '@/hooks/common';
+import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { changeTodo, removeTodo } from '@/redux/todo.slice';
 import ApiHandle from '../service';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ export interface TodoProps {
 
 function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
   const dispatch = useAppDispatch();
-
+  const currUserId = useAppSelector((state) => state.users.currId);
   // state
   const [showUpdate, setShowUpdate] = useState<boolean>(false);
   const [showUpdateScore, setShowUpdateScore] = useState<boolean>(false);
@@ -129,6 +129,18 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
           console.log('err ::', e);
         });
     }
+  };
+
+  const handleLeaveTask = (userId: number, todoId: number) => {
+    ApiHandle.delete(`/api/assignee/?userId=${userId}&todoId=${todoId}`)
+      .then((res) => {
+        alert('remove done');
+        checkUpdate((pre) => !pre);
+      })
+      .catch((e) => {
+        alert('remove false');
+        console.log('e ::', e);
+      });
   };
 
   // side effect
@@ -260,16 +272,29 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
         )}
 
         {/* Assignee */}
-        <td className="group h-[50px]">
-          <button
-            onClick={() => {
-              setOpenAddAssignee(true);
-            }}
-            className="p-2 bg-red-600 text-white hover:opacity-80"
-          >
-            UPDATE
-          </button>
-        </td>
+        {todo.role === 'AUTHOR' ? (
+          <td className="group h-[50px]">
+            <button
+              onClick={() => {
+                setOpenAddAssignee(true);
+              }}
+              className="p-2 bg-red-600 text-white hover:opacity-80"
+            >
+              Change Assignee
+            </button>
+          </td>
+        ) : (
+          <td>
+            <button
+              onClick={() => {
+                handleLeaveTask(Number(currUserId), Number(todo.id));
+              }}
+              className="p-2 bg-red-600 text-white hover:opacity-80"
+            >
+              Leave Task
+            </button>
+          </td>
+        )}
       </tr>
       {openAddAssignee ? (
         <AddAssignee todo={todo} openAddAssignee={openAddAssignee} setOpenAddAssignee={setOpenAddAssignee} />

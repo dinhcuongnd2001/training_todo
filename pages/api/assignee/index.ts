@@ -1,6 +1,6 @@
 import nc, { NextHandler } from 'next-connect';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { ApiResponse, Assignee, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
+import { Assignee, AuthenticatedRequest, CreateTodoRequest, Todo } from '@/interfaces';
 import { PrismaClient, TodoStatus } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -16,8 +16,8 @@ const deleteAssignee = async (userId: number, todoId: number) => {
     const res = await prisma.assignee_Todo.delete({
       where: {
         userId_todoId: {
-          userId: userId,
-          todoId: todoId,
+          userId,
+          todoId,
         },
       },
     });
