@@ -105,8 +105,6 @@ export default function Home() {
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
 
-  const HandleChangeSort = (check: boolean) => {};
-
   return (
     <main className="w-full h-[100vh] bg-white text-black p-8">
       <div className="mb-4 flex items-center flex-wrap">
@@ -118,7 +116,7 @@ export default function Home() {
                 key={index}
                 className={classNames(
                   'p-2 mr-4 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px]',
-                  status === x ? 'bg-red-400 ' : ' bg-gray-50 dark:bg-gray-700 dark:text-gray-400'
+                  status === x ? 'bg-red-400' : 'bg-gray-50 dark:bg-gray-700 dark:text-gray-400'
                 )}
               >
                 {x}
@@ -137,12 +135,19 @@ export default function Home() {
             >
               asc
             </button>
+            {/* add */}
+            <button
+              onClick={handleOpenModal}
+              className="p-2 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400"
+            >
+              Add Todo
+            </button>
           </div>
 
           {/* logout */}
           <div>
             <button
-              className="p-2 mr-4 text-sm uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400 text-gray-800"
+              className="p-2 text-sm uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400 text-gray-800"
               onClick={handleLogout}
             >
               Logout
@@ -150,27 +155,15 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex items-center">
-          {/* search */}
-          <div className="w-[370px] mb-2">
-            <input
-              className="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Search"
-              type="text"
-              value={filter}
-              onChange={handleChangeFilter}
-            />
-          </div>
-
-          {/* add */}
-          <div className="flex">
-            <button
-              onClick={handleOpenModal}
-              className="p-2 ml-4 text-sm text-gray-700 uppercase rounded hover:cursor-pointer hover:opacity-80 min-w-[80px] bg-red-400"
-            >
-              +
-            </button>
-          </div>
+        {/* search */}
+        <div className="w-[370px] mb-2">
+          <input
+            className="block w-full p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Search"
+            type="text"
+            value={filter}
+            onChange={handleChangeFilter}
+          />
         </div>
       </div>
 

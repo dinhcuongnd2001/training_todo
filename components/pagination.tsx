@@ -41,7 +41,7 @@ export default function Pagination({ totalPages, currentPage, numPageShow, nearP
               onClick={() => handleSelectPage(x)}
               className={
                 currentPage == x
-                  ? 'items-center border-t-2 border-indigo-500 px-4 pt-4 text-sm font-medium text-indigo-600'
+                  ? 'items-center border-t-2 border-gray-300 px-4 pt-4 text-sm font-medium text-gray-500'
                   : 'cursor-pointer inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500'
               }
               aria-current="page"

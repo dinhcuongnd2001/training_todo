@@ -99,7 +99,7 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: Ad
             </select>
           </div>
           <div className="flex justify-end w-full">
-            <button className="p-2 bg-red-600 rounded text-white">Save</button>
+            <button className="p-2 bg-red-400 rounded text-white">Save</button>
           </div>
         </form>
       </>
