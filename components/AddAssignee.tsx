@@ -26,21 +26,29 @@ function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeP
   const [assignee, setAssignee] = useState<Assignee>({ todoId: -1, userId: -1 });
   const [checkRender, setCheckRender] = useState<Boolean>(false);
 
-  useEffect(() => {
-    ApiHandle.get(`/api/user/getAssignees/?todoId=${todo.id}`)
-      .then((res) => {
-        setAssignees(res.data);
-      })
-      .catch((e) => console.log('e ::', e));
-  }, [checkRender]);
+  useEffect(
+    () => {
+      ApiHandle.get(`/api/user/getAssignees/?todoId=${todo.id}`)
+        .then((res) => {
+          setAssignees(res.data);
+        })
+        .catch((e) => console.log('e ::', e));
+    },
+    // [checkRender]
+    [checkRender, todo.id]
+  );
 
-  useEffect(() => {
-    ApiHandle.get(`/api/user/getUser/?todoId=${todo.id}&authorId=${todo.authorId}`)
-      .then((res) => {
-        setUserNotInTodo(res.data);
-      })
-      .catch((e) => console.log('e ::', e));
-  }, [assignees]);
+  useEffect(
+    () => {
+      ApiHandle.get(`/api/user/getUser/?todoId=${todo.id}&authorId=${todo.authorId}`)
+        .then((res) => {
+          setUserNotInTodo(res.data);
+        })
+        .catch((e) => console.log('e ::', e));
+    },
+    // [assignees]
+    [assignees, todo.id, todo.authorId]
+  );
 
   const handleAddAssignee = () => {
     if (assignee.todoId < 0 && assignee.userId < 0) {
@@ -73,10 +81,10 @@ function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeP
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
-      <div className="relative p-10 overflow-x-auto shadow-md -lg flex justify-center flex-col items-center bg-gray-900 w-[40%] m-auto mt-20">
+      <div className="relative p-10 overflow-x-auto shadow-md -lg flex justify-center flex-col items-center bg-gray-900 w-[40%] min-h-[600px] m-auto mt-20">
         <h1 className="mb-5 mt-20">Todo: {todo.name}</h1>
         <h2 className="mb-5">Table Assignee</h2>
-        <table className="text-sm text-left text-gray-500 dark:text-gray-400 w-[40%] ">
+        <table className="text-sm text-left text-gray-500 dark:text-gray-400 w-[400px] ">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3">
@@ -120,10 +128,13 @@ function AddAssignee({ todo, openAddAssignee, setOpenAddAssignee }: AddAssigneeP
             onChange={(e) => {
               setAssignee({ todoId: Number(todo.id), userId: Number(e.target.value) });
             }}
+            value={assignee.userId}
             id="countries"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
-            <option className="hidden">Select An Assignee</option>
+            <option key="12323" value="">
+              Select An Assignee
+            </option>
             {userNotInTodo
               ? userNotInTodo.map((x, index) => (
                   <option key={index} value={x.id}>

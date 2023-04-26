@@ -275,7 +275,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
               onClick={() => {
                 setOpenAddAssignee(true);
               }}
-              className="mt-2 text-sm text-gray-400 bg-gray-700 hover:opacity-90 focus:outline-none font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-700  dark:focus:ring-gray-700 dark:border-gray-700"
+              className="mt-2 min-w-[150px] text-sm text-gray-400 bg-gray-700 hover:opacity-90 focus:outline-none font-medium rounded-lg px-5 py-2.5 mr-2 mb-2 dark:bg-gray-700  dark:focus:ring-gray-700 dark:border-gray-700"
             >
               Change Assignee
             </button>
@@ -286,7 +286,7 @@ function TodoComponent({ num, todo, checkUpdate }: TodoProps) {
               onClick={() => {
                 handleLeaveTask(Number(currUserId), Number(todo.id));
               }}
-              className="p-2 bg-red-400 rounded text-sm text-gray-900 hover:opacity-80"
+              className="p-2 bg-red-400 rounded text-sm text-gray-900 hover:opacity-80 min-w-[150px]"
             >
               Leave Task
             </button>

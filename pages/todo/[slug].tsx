@@ -15,18 +15,22 @@ export default function DetailTodo({ todo }: DetailProp) {
     router.push('/');
   };
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    const { slug } = router.query;
-    ApiHandle.get(`/api/todo/name/${slug}`)
-      .then((res) => {
-        setCurrentTodo(res.data);
-      })
-      .catch((e) => {
-        alert(e.response.data);
-        router.push('/');
-      });
-  }, [router.isReady]);
+  useEffect(
+    () => {
+      if (!router.isReady) return;
+      const { slug } = router.query;
+      ApiHandle.get(`/api/todo/name/${slug}`)
+        .then((res) => {
+          setCurrentTodo(res.data);
+        })
+        .catch((e) => {
+          alert(e.response.data);
+          router.push('/');
+        });
+    },
+    // [router.isReady]
+    [router.isReady, router]
+  );
 
   return (
     <div className="w-full h-[100vh] bg-white text-black justify-center items-center flex">

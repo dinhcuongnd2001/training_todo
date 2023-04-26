@@ -77,20 +77,24 @@ export default function Home() {
     });
   };
 
-  useEffect(() => {
-    if (!router.isReady) return;
-    // if (openModal) return;
-    console.log('call api');
-    ApiHandle.get('/api/todo', { status: statusFilter, search: searchFilter, page: pageFilter, order: orderFilter })
-      .then((res) => {
-        setTotalPages(res.data.totalPages);
-        dispatch(fetchTodoList(res.data.listTodo));
-        dispatch(fetchCurrId(res.data.currId));
-      })
-      .catch((e) => {
-        router.push('/auth/login');
-      });
-  }, [router.isReady, status, order, search, page, checkUpdate]);
+  useEffect(
+    () => {
+      if (!router.isReady) return;
+      // if (openModal) return;
+      console.log('call api');
+      ApiHandle.get('/api/todo', { status: statusFilter, search: searchFilter, page: pageFilter, order: orderFilter })
+        .then((res) => {
+          setTotalPages(res.data.totalPages);
+          dispatch(fetchTodoList(res.data.listTodo));
+          dispatch(fetchCurrId(res.data.currId));
+        })
+        .catch((e) => {
+          router.push('/auth/login');
+        });
+    },
+    // [router.isReady, status, order, search, page, checkUpdate]
+    [router.isReady, statusFilter, orderFilter, searchFilter, pageFilter, checkUpdate]
+  );
 
   // useEffect(() => {
   //   ApiHandle.get('/api/user')

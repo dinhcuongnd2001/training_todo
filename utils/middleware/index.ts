@@ -17,7 +17,7 @@ export const checkAuth = async (req: AuthenticatedRequest, res: NextApiResponse,
     req.authorId = data.id;
     next();
   } catch (error) {
-    next({ message: 'token expired', statusCode: 401 });
+    return next({ message: 'token expired', statusCode: 401 });
   }
 };
 
@@ -58,10 +58,12 @@ export const checkAssignee = async (req: CheckAssigneeRequest, res: NextApiRespo
   try {
     const todo = await prisma.todo.findMany({
       where: {
-        OR: [
-          { authorId: userId },
+        AND: [
           {
-            AND: [{ name: nameTodo }, { assignees_todo: { some: { userId: userId } } }],
+            name: nameTodo,
+          },
+          {
+            OR: [{ authorId: userId }, { assignees_todo: { some: { userId: userId } } }],
           },
         ],
       },
