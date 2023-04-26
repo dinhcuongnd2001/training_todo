@@ -1,7 +1,6 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import ComponentAdd from '../components/ComponentAdd';
 import TodoComponent from '@/components/TodoComponent';
-
 import { Status } from '@/constants';
 import { useAppDispatch, useAppSelector } from '@/hooks/common';
 import { fetchTodoList } from '@/redux/todo.slice';
@@ -11,7 +10,6 @@ import { debounce } from 'lodash';
 import ApiHandle from '../service';
 import Pagination from '@/components/Pagination';
 import { classNames } from '@/utils';
-import Image from 'next/image';
 import down from '../public/image/down-arrow.png';
 import up from '../public/image/upload.png';
 export default function Home() {
@@ -81,7 +79,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!router.isReady) return;
-    if (openModal) return;
+    // if (openModal) return;
     console.log('call api');
     ApiHandle.get('/api/todo', { status: statusFilter, search: searchFilter, page: pageFilter, order: orderFilter })
       .then((res) => {
@@ -94,13 +92,13 @@ export default function Home() {
       });
   }, [router.isReady, status, order, search, page, checkUpdate]);
 
-  useEffect(() => {
-    ApiHandle.get('/api/user')
-      .then((res) => {
-        dispatch(fetchUser(res.data));
-      })
-      .catch((e) => alert(e));
-  }, []);
+  // useEffect(() => {
+  //   ApiHandle.get('/api/user')
+  //     .then((res) => {
+  //       dispatch(fetchUser(res.data));
+  //     })
+  //     .catch((e) => alert(e));
+  // }, []);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];
@@ -168,7 +166,7 @@ export default function Home() {
       </div>
 
       <>
-        <table className="w-[1300px] min-h-[145px] text-left border border-solid border-[#333]">
+        <table className="w-[1300px] text-left border border-solid border-[#333]">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 h-[50px]">
             <tr>
               <th className="w-[50px]">#</th>
@@ -181,7 +179,7 @@ export default function Home() {
           </thead>
 
           {todoList?.length ? (
-            <tbody>
+            <tbody className="h-[120px]">
               {todoList.length > 0
                 ? todoList.map((each, index) => {
                     return <TodoComponent key={each.id} num={index} todo={each} checkUpdate={setCheckUpdate} />;
@@ -189,7 +187,7 @@ export default function Home() {
                 : null}
             </tbody>
           ) : (
-            <tbody>
+            <tbody className="h-[120px]">
               <tr>
                 <td></td>
                 <td>

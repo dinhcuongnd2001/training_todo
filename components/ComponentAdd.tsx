@@ -20,10 +20,11 @@ function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: Ad
     authorId: 0,
   });
   const status = Object.keys(Status).filter((v) => isNaN(Number(v)));
-  const getTodoList = useAppSelector((state) => state.todolist.list);
+  // const getTodoList = useAppSelector((state) => state.todolist.list);
   const handleSubmit = (): void => {
     ApiHandle.create('api/todo', todo)
       .then((res) => {
+        alert('Thêm thành công');
         setCheckUpdate((pre) => {
           return !pre;
         });
