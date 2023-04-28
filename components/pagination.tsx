@@ -2,7 +2,7 @@ import { PaginationProps } from '@/interfaces';
 import { ArrowLongLeftIcon, ArrowLongRightIcon } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/router';
 
-export default function Pagination({ totalPages, currentPage, numPageShow, nearPage }: PaginationProps) {
+const Pagination = ({ totalPages, currentPage, numPageShow, nearPage }: PaginationProps) => {
   const router = useRouter();
 
   const handlePrevious = () => {
@@ -66,4 +66,5 @@ export default function Pagination({ totalPages, currentPage, numPageShow, nearP
       </div>
     </nav>
   );
-}
+};
+export default Pagination;
