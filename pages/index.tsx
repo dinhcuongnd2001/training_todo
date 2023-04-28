@@ -9,7 +9,7 @@ import { fetchCurrId, fetchUser } from '@/redux/user.slice';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
 import { classNames } from '@/utils';
-import Pagination from '../components/Pagination';
+import Pagination from '@/components/Pagination';
 
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
