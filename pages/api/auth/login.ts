@@ -49,7 +49,7 @@ handler.post(async (req, res: NextApiResponse, next) => {
     );
     res.status(200).json({ message: 'success', access_token: token });
   } catch (error: any) {
-    res.status(401).send({ message: error.props.title });
+    res.status(401).send({ message: error });
   }
 });
 
