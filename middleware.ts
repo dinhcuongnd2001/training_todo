@@ -1,8 +1,6 @@
-import jwt from 'jsonwebtoken';
 import { NextRequest, NextResponse } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // console.log('nextURL ::', request.nextUrl.pathname);
   if (request.nextUrl.pathname.endsWith('/') || request.nextUrl.pathname.startsWith('/todo')) {
     const token = request.cookies.get('token')?.value as string;
     if (!token) {
@@ -12,7 +10,6 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname.startsWith('/auth/login')) {
     const token = request.cookies.get('token')?.value as string;
     if (token) {
-      // console.log('called in has token');
       return NextResponse.redirect(new URL('/', request.nextUrl.origin));
     }
   }

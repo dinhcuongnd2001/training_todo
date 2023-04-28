@@ -16,14 +16,14 @@ const handleLogin = async (data: LoginDataType) => {
   });
   if (!user)
     throw new Error({
-      statusCode: 400,
+      statusCode: 401,
       title: 'The Password or Email is not true',
     });
   // compare
   const match = await bcrypt.compare(data.password, user.password);
   if (!match)
     throw new Error({
-      statusCode: 400,
+      statusCode: 401,
       title: 'The Password or Email is not true',
     });
 
@@ -49,7 +49,6 @@ handler.post(async (req, res: NextApiResponse, next) => {
     );
     res.status(200).json({ message: 'success', access_token: token });
   } catch (error: any) {
-    // console.log('error ::', error);
     res.status(401).send({ message: error.props.title });
   }
 });

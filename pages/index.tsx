@@ -10,8 +10,7 @@ import { debounce } from 'lodash';
 import ApiHandle from '../service';
 import Pagination from '@/components/Pagination';
 import { classNames } from '@/utils';
-import down from '../public/image/down-arrow.png';
-import up from '../public/image/upload.png';
+
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
   const [totalPages, setTotalPages] = useState<number>();
@@ -77,32 +76,20 @@ export default function Home() {
     });
   };
 
-  useEffect(
-    () => {
-      if (!router.isReady) return;
-      // if (openModal) return;
-      console.log('call api');
-      ApiHandle.get('/api/todo', { status: statusFilter, search: searchFilter, page: pageFilter, order: orderFilter })
-        .then((res) => {
-          setTotalPages(res.data.totalPages);
-          dispatch(fetchTodoList(res.data.listTodo));
-          dispatch(fetchCurrId(res.data.currId));
-        })
-        .catch((e) => {
-          router.push('/auth/login');
-        });
-    },
-    // [router.isReady, status, order, search, page, checkUpdate]
-    [router.isReady, statusFilter, orderFilter, searchFilter, pageFilter, checkUpdate]
-  );
-
-  // useEffect(() => {
-  //   ApiHandle.get('/api/user')
-  //     .then((res) => {
-  //       dispatch(fetchUser(res.data));
-  //     })
-  //     .catch((e) => alert(e));
-  // }, []);
+  useEffect(() => {
+    if (!router.isReady) return;
+    // if (openModal) return;
+    console.log('call api');
+    ApiHandle.get('/api/todo', { status: statusFilter, search: searchFilter, page: pageFilter, order: orderFilter })
+      .then((res) => {
+        setTotalPages(res.data.totalPages);
+        dispatch(fetchTodoList(res.data.listTodo));
+        dispatch(fetchCurrId(res.data.currId));
+      })
+      .catch((e) => {
+        router.push('/auth/login');
+      });
+  }, [router.isReady, statusFilter, orderFilter, searchFilter, pageFilter, checkUpdate]);
 
   const getStatus = Object.keys(Status).filter((v) => isNaN(Number(v)));
   const listStatus = ['ALL', ...getStatus];

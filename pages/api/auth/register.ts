@@ -11,7 +11,7 @@ const handleRegister = async (data: RegisterDataType) => {
   const result = await prisma.user.findUnique({ where: { email: data.email } });
   if (result) {
     throw new Error({
-      statusCode: 409,
+      statusCode: 404,
       title: 'The Email has existen',
     });
   }
