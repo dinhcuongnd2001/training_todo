@@ -8,8 +8,8 @@ import { useRouter } from 'next/router';
 import { fetchCurrId, fetchUser } from '@/redux/user.slice';
 import { debounce } from 'lodash';
 import ApiHandle from '../service';
-import Pagination from '@/components/Pagination';
 import { classNames } from '@/utils';
+import Pagination from '../components/Pagination';
 
 export default function Home() {
   const [filter, setFilter] = useState<string>('');
