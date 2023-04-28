@@ -6,8 +6,8 @@ import { AddTodoProps } from '@/interfaces';
 import Modal from '@mui/material/Modal';
 import { useRouter } from 'next/router';
 import ApiHandle from '../service';
-import { TodoStatus } from '@prisma/client';
 import { createDueDate } from '@/utils';
+import { TodoStatus } from '@prisma/client';
 
 function ComponentAdd({ openModal, setOpenModal, setFilter, setCheckUpdate }: AddTodoProps) {
   const router = useRouter();
